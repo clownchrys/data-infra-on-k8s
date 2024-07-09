@@ -1,0 +1,18 @@
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: local-storage
+provisioner: kubernetes.io/no-provisioner
+# 동적 프로비저닝이 불가능하므로,
+# 실제 Pod이 생성될 때까지 PV의 바인딩과 프로비저닝을 기다림
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: lvm-myvolgrp
+parameters:
+  storage: "lvm"
+  volgroup: "myvolgrp"
+provisioner: local.csi.openebs.io

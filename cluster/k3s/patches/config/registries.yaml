@@ -1,0 +1,53 @@
+# https://docs.k3s.io/installation/private-registry
+
+mirrors:
+  docker.io:
+    endpoint:
+      - "https://harbor.clownchrys.link"
+    rewrite:
+      "^(.*)": "docker.io/$1"
+  registry.k8s.io:
+    endpoint:
+      - "https://harbor.clownchrys.link"
+    rewrite:
+      "^(.*)": "registry.k8s.io/$1"
+  quay.io:
+    endpoint:
+      - "https://harbor.clownchrys.link"
+    rewrite:
+      "^(.*)": "quay.io/$1"
+  gcr.io:
+    endpoint:
+      - "https://harbor.clownchrys.link"
+    rewrite:
+      "^(.*)": "gcr.io/$1"
+  ghcr.io:
+    endpoint:
+      - "https://harbor.clownchrys.link"
+    rewrite:
+      "^(.*)": "ghcr.io/$1"
+  docker.elastic.co:
+    endpoint:
+      - "https://harbor.clownchrys.link"
+    rewrite:
+      "^(.*)": "docker.elastic.co/$1"
+  registry.gitlab.com:
+    endpoint:
+      - "https://harbor.clownchrys.link"
+    rewrite:
+      "^(.*)": "registry.gitlab.com/$1"
+  # "*":
+  #   endpoint:
+  #     - "https://harbor.clownchrys.link"
+
+configs:
+  "harbor.clownchrys.link":
+    tls:
+      insecure_skip_verify: true
+      # cert_file: <PATH_TO_FILE>
+      # key_file: <PATH_TO_FILE>
+      # ca_file: <PATH_TO_FILE>
+    auth:
+      username: harboruser
+      password: Harbor12345
+      # auth: <AUTH_TOKEN>

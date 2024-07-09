@@ -1,0 +1,10 @@
+apiVersion: metallb.io/v1beta1 
+kind: IPAddressPool
+metadata:
+  name: ip-pool
+  # namespace: metallb-system  # IPAddressPool이 사용할 namespace명
+spec:
+  addresses:
+  # 사용할 ip address pool
+  - 172.31.46.220-172.31.46.230 
+  autoAssign: true

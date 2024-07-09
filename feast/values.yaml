@@ -1,0 +1,63 @@
+feature-server:
+  # enabled: true
+
+  # https://github.com/feast-dev/feast/blob/master/java/serving/src/main/resources/application.yml
+  application-override.yaml:
+    enabled: true
+    feast:
+      awsRegion: us-east-1
+      active_store: online
+      stores:
+      - name: online
+        type: REDIS
+        config:
+          host: feast-redis-master # by redis.enabled
+          port: 6379
+          # password:
+      - name: offline
+        type: postgres
+        config:
+          host: mlflow-postgresql.mlflow.svc.cluster.local
+          port: 5432
+          database: mlflow
+          db_schema: public
+          user: mlflow_user
+          password: mlflow_user
+      entityKeySerializationVersion: 2
+
+
+transformation-service:
+  enabled: true
+
+redis:
+  # redis.enabled -- Flag to install Redis
+  enabled: true
+  # redis.usePassword -- Disable redis password
+  usePassword: false
+
+global:
+  # global.registry -- Information about registry managed by Feast Python SDK (must be in sync with feature_store.yaml)
+  registry:
+    # global.registry.path -- Path to the registry file managed by Feast Python SDK
+    # path: gs://path/to/registry.db
+    # path: file:///data/feast/registry.db
+    path: s3://feast/registry.db
+    # global.registry.cache_ttl_seconds -- Registry cache (in memory) will be refreshed on this interval
+    cache_ttl_seconds: 0
+    # self.s3_client.Bucket(self._bucket).put_object(
+    #     Body=file_obj, Key=self._key, **self._boto_extra_args
+    # )
+    s3_additional_kwargs: {}
+
+  # global.project -- Project from feature_store.yaml
+  project: default
+
+  javaOpts: aws.accessKeyId=admin,aws.secretKey=QJPR45ofMm,aws.endpointUrl=http://mlflow-minio.mlflow.svc.cluster.local
+
+  # https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-envvars.html
+  envOverrides: #{}
+    AWS_ACCESS_KEY_ID: admin
+    AWS_ACCESS_KEY: admin
+    AWS_SECRET_ACCESS_KEY: QJPR45ofMm
+    AWS_SECRET_KEY: QJPR45ofMm
+    AWS_ENDPOINT_URL: http://mlflow-minio.mlflow.svc.cluster.local

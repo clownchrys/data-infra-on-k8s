@@ -1,0 +1,72 @@
+elasticsearchHosts: "https://elasticsearch-master.elastic.svc.cluster.local:9200"
+elasticsearchCertificateSecret: elastic-cluster-local-tls
+elasticsearchCertificateAuthoritiesFile: ca.crt
+elasticsearchCredentialSecret: elasticsearch-master-credentials
+
+replicas: 1
+
+# secretMounts:
+#   - name: elastic-certificates
+#     secretName: elastic-cluster-local-tls
+#     path: /usr/share/elasticsearch/config/certs
+#     defaultMode: 0755
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "500m"
+    memory: "1Gi"
+
+protocol: http
+
+serverHost: "0.0.0.0"
+
+kibanaConfig: {}
+#   kibana.yml: |
+#     key:
+#       nestedkey: value
+
+service:
+  type: ClusterIP
+  loadBalancerIP: ""
+  port: 5601
+  nodePort: ""
+  labels: {}
+  annotations: {}
+  # cloud.google.com/load-balancer-type: "Internal"
+  # service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
+  # service.beta.kubernetes.io/azure-load-balancer-internal: "true"
+  # service.beta.kubernetes.io/openstack-internal-load-balancer: "true"
+  # service.beta.kubernetes.io/cce-load-balancer-internal-vpc: "true"
+  loadBalancerSourceRanges: []
+  # 0.0.0.0/0
+  httpPortName: http
+
+ingress:
+  enabled: true
+  className: "nginx"
+  pathtype: ImplementationSpecific
+  annotations:
+    # kubernetes.io/ingress.allow-http: "false"
+    # ingress.kubernetes.io/ssl-passthrough: "true"
+    # nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # nginx.ingress.kubernetes.io/secure-backends: "true"
+    # nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  hosts:
+    - host: kibana.geniouslab.io
+      paths:
+        - path: /
+  #tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+readinessProbe:
+  failureThreshold: 3
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  successThreshold: 3
+  timeoutSeconds: 5

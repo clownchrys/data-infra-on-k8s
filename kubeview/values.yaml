@@ -1,0 +1,7 @@
+ingress:
+  enabled: true
+  annotations: {}
+  hosts:
+    - host: kubeview.geniouslab.io
+  tls: []
+  className: "nginx"

@@ -1,0 +1,93 @@
+# AWS_ACCESS_KEY_ID=admin AWS_SECRET_ACCESS_KEY=QJPR45ofMm AWS_ENDPOINT_URL=http://mlflow-minio.mlflow.svc.cluster.local feast apply
+
+# pip install feast[postgres,redis,spark,aws]
+# https://docs.feast.dev/how-to-guides/feast-snowflake-gcp-aws/install-feast
+
+project: default
+
+# The provider primarily specifies default offline / online stores
+# & storing the registry in a given cloud
+provider: local
+
+# By default, the registry is a file (but can be turned into a more scalable SQL-backed registry)
+# registry: data/registry.db
+
+# pip install boto3
+# AWS_ACCESS_KEY_ID=admin
+# AWS_SECRET_ACCESS_KEY=ve7he8vvGZ
+# AWS_ENDPOINT_URL=http://mlflow-minio.mlflow.svc.cluster.local
+registry:
+  registry_type: file
+  path: s3://feast/registry.db
+  cache_ttl_seconds: 60
+  s3_additional_kwargs: {}
+
+# registry:
+#   registry_type: sql
+#   path: postgresql://feast:feast@mlflow-postgresql.mlflow.svc.cluster.local:5432/feast_registry
+#   cache_ttl_seconds: 60
+
+# https://docs.feast.dev/reference/online-stores
+
+# online_store:
+#   type: sqlite
+#   path: data/online_store.db
+
+online_store:
+  type: postgres
+  host: mlflow-postgresql.mlflow.svc.cluster.local
+  port: 5432
+  database: feast_online
+  db_schema: public
+  user: feast
+  password: feast
+
+# https://docs.feast.dev/reference/offline-stores
+
+# offline_store:
+#   type: sqlite
+#   path: data/offline_store.db
+
+# offline_store:
+#   type: postgres
+#   host: mlflow-postgresql.mlflow.svc.cluster.local
+#   port: 5432
+#   database: feast_offline
+#   db_schema: public
+#   user: feast
+#   password: feast
+
+# https://github.com/feast-dev/feast-workshop/blob/main/module_3_db/README.md
+# Note: pip install -U "databricks-connect"
+# offline_store:
+#   type: spark
+#   spark_conf:
+#     spark.ui.enabled: "false"
+#     spark.eventLog.enabled: "false"
+#     spark.sql.catalogImplementation: "hive"
+#     spark.sql.parser.quotedRegexColumnNames: "true"
+#     spark.sql.session.timeZone: "UTC"
+
+entity_key_serialization_version: 2
+
+# https://docs.feast.dev/reference/batch-materialization
+# TypeError: SparkMaterializationEngine is only compatible with the SparkOfflineStore
+# batch_engine:
+#   type: spark.engine
+#   partitions: 10 # optional num partitions to use to write to online store
+
+# batch_engine:
+#   type: bytewax
+#   namespace: bytewax
+#   image: bytewax/bytewax-feast:latest
+#   env:
+#     - name: AWS_ACCESS_KEY_ID
+#       valueFrom:
+#         secretKeyRef:
+#           name: aws-credentials
+#           key: aws-access-key-id
+#     - name: AWS_SECRET_ACCESS_KEY
+#       valueFrom:
+#         secretKeyRef:
+#           name: aws-credentials
+#           key: aws-secret-access-key

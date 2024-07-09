@@ -1,0 +1,16 @@
+# /etc/rancher/k3s/config.yaml
+
+############################
+#          Common          #
+############################
+
+node-label:
+  - foo=bar
+  # - node-role.kubernetes.io/worker="true"
+
+#####################################
+#          Customized Flag          #
+#####################################
+
+# kubelet-arg: []
+# kube-proxy-arg: []

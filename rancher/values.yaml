@@ -1,0 +1,225 @@
+replicas: 3
+resources: {}
+
+# Fully qualified name to reach your Rancher server
+hostname: rancher.geniouslab.io
+
+tls: ingress
+
+### ingress ###
+# Readme for details and instruction on adding tls secrets.
+ingress:
+  # If set to false, ingress will not be created
+  # Defaults to true
+  # options: true, false
+  enabled: true
+  includeDefaultExtraAnnotations: true
+  extraAnnotations:
+    kubernetes.io/ingress.allow-http: "false"
+    ingress.kubernetes.io/ssl-passthrough: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/secure-backends: "true"
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    nginx.ingress.kubernetes.io/rewrite-taget: /
+  ingressClassName: "nginx"
+  # Certain ingress controllers will will require the pathType or path to be set to a different value.
+  pathType: ImplementationSpecific
+  path: "/"
+  # backend port number
+  servicePort: 443
+
+  # configurationSnippet - Add additional Nginx configuration. This example statically sets a header on the ingress.
+  # configurationSnippet: |
+  #   more_set_input_headers "X-Forwarded-Host: {{ .Values.hostname }}";
+
+  tls:
+    # options: rancher, letsEncrypt, secret
+    source: rancher
+    secretName: tls-rancher-ingress
+
+# Rancher post-delete hook
+postDelete:
+  enabled: true
+  image:
+    repository: rancher/shell
+    tag: v0.1.24
+  namespaceList:
+    - cattle-fleet-system
+    - cattle-system
+    - rancher-operator-system
+  # Number of seconds to wait for an app to be uninstalled
+  timeout: 120
+  # by default, the job will fail if it fail to uninstall any of the apps
+  ignoreTimeoutError: false
+
+# Set a bootstrap password. If leave empty, a random password will be generated.
+bootstrapPassword: "rancher_admin"
+
+livenessProbe:
+  initialDelaySeconds: 60
+  periodSeconds: 30
+readinessProbe:
+  initialDelaySeconds: 5
+  periodSeconds: 30
+
+# helm values to use when installing the rancher-webhook chart.
+# helm values set here will override all other global values used when installing the webhook such as priorityClassName and systemRegistry settings.
+# https://github.com/rancher/webhook/blob/release/v0.5/charts/rancher-webhook/values.yaml
+webhook: |
+  image:
+    repository: rancher/rancher-webhook
+    tag: v0.4.7
+    imagePullPolicy: IfNotPresent
+
+  global:
+    cattle:
+      systemDefaultRegistry: ""
+    hostNetwork: false
+
+  mcm:
+    enabled: true
+
+  # tolerations for the webhook deployment. See https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/ for more info
+  tolerations: []
+  nodeSelector: {}
+
+  ## PriorityClassName assigned to deployment.
+  priorityClassName: ""
+
+  # port assigns which port to use when running rancher-webhook
+  port: 9443
+
+  # Parameters for authenticating the kube-apiserver.
+  auth:
+    # CA for authenticating kube-apiserver client certs. If empty, client connections will not be authenticated.
+    # Must be base64-encoded.
+    clientCA: ""
+    # Allowlist of CNs for kube-apiserver client certs. If empty, any cert signed by the CA provided in clientCA will be accepted.
+    allowedCNs: []
+
+# helm values to use when installing the fleet chart.
+# helm values set here will override all other global values used when installing the fleet chart.
+# https://github.com/rancher/fleet/blob/main/charts/fleet/values.yaml
+fleet: |
+  image:
+    repository: rancher/fleet
+    tag: v0.9.5
+    imagePullPolicy: IfNotPresent
+
+  agentImage:
+    repository: rancher/fleet-agent
+    tag: v0.9.5
+    imagePullPolicy: IfNotPresent
+
+  # For cluster registration the public URL of the Kubernetes API server must be set here
+  # Example: https://example.com:6443
+  apiServerURL: ""
+
+  # For cluster registration the pem encoded value of the CA of the Kubernetes API server must be set here
+  # If left empty it is assumed this Kubernetes API TLS is signed by a well known CA.
+  apiServerCA: ""
+
+  # Determines whether the agent should trust CA bundles from the operating system's trust store when connecting to a
+  # management cluster. True in `system-store` mode, false in `strict` mode.
+  agentTLSMode: "system-store"
+
+  # A duration string for how often agents should report a heartbeat
+  agentCheckinInterval: "15m"
+
+  # Whether you want to allow cluster upon registration to specify their labels.
+  ignoreClusterRegistrationLabels: false
+
+  # Counts from gitrepo are out of sync with bundleDeployment state.
+  # Just retry in a number of seconds as there is no great way to trigger an event that doesn't cause a loop.
+  # If not set default is 15 seconds.
+  # clusterEnqueueDelay: 120s
+
+  # http[s] proxy server
+  # proxy: http://<username>@<password>:<url>:<port>
+
+  # comma separated list of domains or ip addresses that will not use the proxy
+  noProxy: 127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,192.168.0.0/16,.svc,.cluster.local
+
+  bootstrap:
+    enabled: true
+    # The namespace that will be autocreated and the local cluster will be registered in
+    namespace: fleet-local
+    # The namespace where the fleet agent for the local cluster will be ran, if empty
+    # this will default to cattle-fleet-system
+    agentNamespace: ""
+    # A repo to add at install time that will deploy to the local cluster. This allows
+    # one to fully bootstrap fleet, its configuration and all its downstream clusters
+    # in one shot.
+    repo: ""
+    secret: ""
+    branch: master
+    paths: ""
+
+  global:
+    cattle:
+      systemDefaultRegistry: ""
+
+  ## Node labels for pod assignment
+  ## Ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+  ## List of node taints to tolerate (requires Kubernetes >= 1.6)
+  tolerations: []
+
+  ## PriorityClassName assigned to deployment.
+  priorityClassName: ""
+
+  gitops:
+    enabled: true
+
+  metrics:
+    enabled: true
+
+  debug: false
+  debugLevel: 0
+  propagateDebugSettingsToAgents: true
+
+  ## Optional CPU pprof configuration. Profiles are collected continuously and saved every period
+  ## Any valid volume configuration can be provided, the example below uses hostPath
+  #cpuPprof:
+  #  period: "60s"
+  #  volumeConfiguration:
+  #    hostPath:
+  #      path: /tmp/pprof
+  #      type: DirectoryOrCreate
+
+  migrations:
+    clusterRegistrationCleanup: true
+
+  ## Leader election configuration
+  leaderElection:
+    leaseDuration: 30s
+    retryPeriod: 10s
+    renewDeadline: 25s
+
+  ## Fleet controller configuration
+  controller:
+    reconciler:
+      # The number of workers that are allowed to each type of reconciler
+      workers:
+        gitrepo: "1"
+        bundle: "1"
+        bundledeployment: "1"
+
+  # Extra environment variables passed to the fleet pods.
+  # extraEnv:
+  # - name: EXPERIMENTAL_OCI_STORAGE
+  #   value: "true"
+
+  # shards:
+  #   - id: shard0
+  #     nodeSelector:
+  #       kubernetes.io/hostname: k3d-upstream-server-0
+  #   - id: shard1
+  #     nodeSelector:
+  #       kubernetes.io/hostname: k3d-upstream-server-1
+  #   - id: shard2
+  #     nodeSelector:
+  #       kubernetes.io/hostname: k3d-upstream-server-2
+

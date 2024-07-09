@@ -1,0 +1,91 @@
+# /etc/rancher/k3s/config.yaml.d/config.yaml
+
+############################################
+#          Critical Configuration          #
+############################################
+
+# NOTE: some configurations must be same on the all servers
+# https://docs.k3s.io/kr/cli/server#critical-configuration-values
+
+# --agent-token
+# --cluster-cidr
+# --cluster-dns
+# --cluster-domain
+# --disable-cloud-controller
+# --disable-helm-controller
+# --disable-network-policy
+# --disable-servicelb
+# --egress-selector-mode
+# --flannel-backend
+# --flannel-external-ip
+# --flannel-ipv6-masq
+# --secrets-encryption
+# --service-cidr
+
+############################
+#          Common          #
+############################
+
+write-kubeconfig-mode: 644
+node-taint+:
+  # - node-role.kubernetes.io/control-plane:NoSchedule
+node-taint-:
+
+###################################
+#          Functionality          #
+###################################
+
+# NOTE: THIS WILL BE USED ON CLI!!
+# cluster-init: true 
+
+# k3s server --help | grep --disable
+disable:
+  # - coredns
+  - servicelb
+  - traefik
+  # - local-storage
+  # - metrics-server
+  # - runtimes
+
+# https://docs.k3s.io/cli/server#kubernetes-components
+# disable-scheduler: true
+disable-cloud-controller: true
+# disable-kube-proxy: true
+disable-network-policy: true
+disable-helm-controller: true
+
+# https://docs.k3s.io/kr/installation/private-registry
+# disable-default-registry-endpoint: true
+
+# https://docs.k3s.io/installation/server-roles#dedicated-etcd-nodes
+# disable-controller-manager: true
+# disable-apiserver: true
+
+# https://docs.k3s.io/installation/server-roles#dedicated-control-plane-nodes
+# disable-etcd: true
+
+#############################
+#          Network          #
+#############################
+
+# cluster-cidr: "10.42.0.0/16"
+# service-cidr: "10.43.0.0/16"
+# service-node-port-range: "30000-32767"
+# cluster-dns: "10.43.0.10"
+# cluster-domain: cluster.local
+flannel-backend: none
+# servicelb-namespace: kube-system
+# egress-selector-mode: agent
+
+#############################
+#          Storage          #
+#############################
+
+# default-local-storage-path: /local-storage
+
+#####################################
+#          Customized Flag          #
+#####################################
+
+# kubelet-arg: []
+# kube-proxy-arg: []

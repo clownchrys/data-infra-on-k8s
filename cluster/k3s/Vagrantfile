@@ -1,0 +1,188 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+# # Front load the includes
+# include_vagrantfile = File.expand_path("../include/_Vagrantfile", __FILE__)
+# load include_vagrantfile if File.exist?(include_vagrantfile)
+
+# Value Referenced String
+# A = 123
+# B = 456
+# "#{A}.#{B}"
+
+# ref. https://developer.hashicorp.com/vagrant/docs/vagrantfile
+
+# Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+#   config.vm.define "<VAGRANT_VM_NAME>" do |machine|  # name used in vagrant
+#     # provider setting
+#     # example) virtualbox, vmware...
+#     machine.vm.provider :virtualbox do |vb|
+#       vb.name = "<PROVIDER_VM_NAME>"  # name used in provider
+#       vb.cpus = 1
+#       vb.memory = 1024
+#     end
+#     machine.vm.host_name = "<HOSTNAME>"  # name used in /etc/hosts
+  
+#     # mount
+#     machine.vm.synced_folder "<HOST_PATH>", "<GUEST_PATH>",
+#       mount_options: [
+#         "dmode=744",
+#         "fmode=644"
+#       ],
+#       disabled: <IS_MOUNT_CONTENTS>
+  
+#     # network
+#     machine.vm.network "forwarded_port",
+#       id: "ssh",  # overwrite ssh setting
+#       guest: 22,
+#       host: 8022
+#     machine.vm.network "private_network",
+#       ip: "10.0.0.12",
+#       auto_config: true
+#     machine.vm.network "public_network",
+#       ip: "192.168.52.15",
+#       netmask: "255.255.255.0",
+#       bridge: "bridge0"
+  
+#     # provision (act in the machine)
+#     # example) shell, docker, ansible...
+#     machine.vm.provision "shell", # or :shell
+#       name: "<ACTION_NAME>",
+#       inline: "<COMMAND>",
+#       path: "<SCRIPT_PATH>", args: ["<ARG1>", "<ARG2>"],
+#       privileged: <IS_PRIVILEGED>,
+#       after: :all # or specific name like "root_password"
+#       before: :all # or specific name like "root_password"
+#     machine.vm.provision :ansible,
+#       playbook: "./playbook.yml"
+#     machine.vm.provision :hosts,
+#       autoconfigure: true,
+#       sync_hosts: true
+#     machine.vm.provision :docker
+#   end
+# end
+
+VAGRANTFILE_API_VERSION = "2"
+
+K3S_VERSION = "v1.28.10"
+K3S_MASTERS = 1
+K3S_WORKERS = 3
+
+NODE_BASE_IP = "192.168.20"
+NODE_BASE_MASTER_IP = 100
+NODE_BASE_WORKER_IP = 200
+NODE_TOKEN_FILE = "/data/node-token"
+NODE_SERVER_IP_FILE = "/data/server-ip"
+
+Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
+  config.vm.box = "ubuntu/jammy64"
+  config.vm.box_version = "20240614.0.0"
+  # config.vm.box = "ubuntu/focal64"
+  # config.vm.box_version = "20211026.0.0"
+  config.vm.box_check_update = false  # whether vagrant automatically updates outdated box
+  config.vm.provider "virtualbox" do |vb|
+    vb.gui = false  # whether open-up GUI
+    vb.cpus = 1  # vb.customize ["modifyvm", :id, "--cpus", 1]
+    vb.memory = 1024  # vb.customize ["modifyvm", :id, "--memory", 1024]
+  end
+  # config.vm.base_mac = "022999D56C03"
+  # config.vm.usable_port_range = 0..64330
+  config.vm.synced_folder ".", "/vagrant", disabled: false, mount_options: [dmode="ro", fmode="ro"]
+  config.vm.synced_folder "./data", "/data"
+  config.vm.synced_folder "./patches", "/opt/k3s", mount_options: [dmode="ro", fmode="ro"]
+  config.vm.provision :shell, name: "configure_rootpass", inline: "echo 'root:root' | chpasswd"
+  config.vm.provision :shell, name: "install_k3s_manifest", inline: "
+    # https://docs.k3s.io/kr/installation/airgap
+    mkdir -p /usr/local/bin/
+    ln -sf /opt/k3s/bin/#{K3S_VERSION}/k3s /usr/local/bin/k3s
+    # https://docs.k3s.io/kr/installation/packaged-components
+    mkdir -p /var/lib/rancher/k3s/server/manifests/
+    cp -rvf /opt/k3s/manifests/* /var/lib/rancher/k3s/server/manifests/
+  "
+  # NOTE: `vagrant plugin install vagrant-hosts`
+  config.vm.provision :hosts, autoconfigure: true, sync_hosts: true
+
+  # [INSTALLATION]
+  # https://docs.k3s.io/kr/installation/configuration
+  # curl -sfL https://get.k3s.io | 
+  # INSTALL_K3S_SKIP_DOWNLOAD=true \
+  # sh -s - server --cluster-init
+
+  # [ENVIRONMENT]
+  # INSTALL_K3S_SKIP_DOWNLOAD=true
+  # INSTALL_K3S_BIN_DIR=/opt/k3s/bin/#{K3S_VERSION}
+  # INSTALL_K3S_BIN_DIR_READ_ONLY=true
+
+  (1..K3S_MASTERS).each do |i|
+    config.vm.define "k3s-master-#{i}" do |machine|
+      NODE_IP = "#{NODE_BASE_IP}.#{NODE_BASE_MASTER_IP + i}"
+      machine.vm.provider :virtualbox do |vb|
+        vb.name = "k3s-master-#{i}"
+        vb.cpus = 2
+        vb.memory = 4096
+      end
+      machine.vm.disk :disk, name: "disk0", size: "30GB"
+      machine.vm.hostname = "k3s-master-#{i}"
+      machine.vm.network "private_network", ip: "#{NODE_IP}", auto_config: true
+      OPTS = (machine.vm.hostname == "k3s-master-1") \
+        ? "--cluster-init" \
+        : "--server=https://$(cat #{NODE_SERVER_IP_FILE}):6443 --token=$(cat #{NODE_TOKEN_FILE})"
+      machine.vm.provision :shell do |s|
+        s.name = "start_k3s_server"
+        s.inline = <<-EOF
+          INSTALL_K3S_SKIP_DOWNLOAD=true \
+          /opt/k3s/sbin/get-k3s.sh server \
+          --config=/opt/k3s/config/server.yaml \
+          --resolv-conf=/opt/k3s/config/resolv.conf \
+          --private-registry=/opt/k3s/config/registries.yaml \
+          --bind-address=#{NODE_IP} \
+          --node-ip=#{NODE_IP} \
+          --node-external-ip=#{NODE_IP} \
+          #{OPTS}
+        EOF
+      end
+      if machine.vm.hostname == "k3s-master-1"
+        machine.vm.provision :shell, name: "post_init", inline: "
+          cat /var/lib/rancher/k3s/server/node-token \
+          | sudo tee #{NODE_TOKEN_FILE}
+          ip a | grep global | grep -v '10.0.2.15' | awk '{print $2}' | cut -f1 -d '/' | uniq \
+          | sudo tee #{NODE_SERVER_IP_FILE}
+        "
+        # iptables -I INPUT 1 -p tcp --dport 6443 -j ACCEPT
+      end
+    end
+  end
+
+  (1..K3S_WORKERS).each do |i|
+    config.vm.define "k3s-worker-#{i}" do |machine|
+      NODE_IP = "#{NODE_BASE_IP}.#{NODE_BASE_WORKER_IP + i}"
+      machine.vm.provider :virtualbox do |vb|
+        vb.name = "k3s-worker-#{i}"
+        vb.cpus = 4
+        vb.memory = 16384
+      end
+      machine.vm.disk :disk, name: "disk0", size: "50GB"
+      machine.vm.hostname = "k3s-worker-#{i}"
+      machine.vm.network "private_network", ip: "#{NODE_IP}", auto_config: true
+      # NOTE: To use '0.0.0.0 <HOSTNAME>' in /etc/hosts
+      if machine.vm.hostname == "k3s-worker-1"
+        machine.vm.network "forwarded_port", id: "ingress_http", guest: 30080, host: 80
+        machine.vm.network "forwarded_port", id: "ingress_https", guest: 30443, host: 443
+      end
+      machine.vm.provision :shell do |s|
+        s.name = "start_k3s_agent"
+        s.inline = <<-EOF
+          INSTALL_K3S_SKIP_DOWNLOAD=true \
+          /opt/k3s/sbin/get-k3s.sh agent \
+          --config=/opt/k3s/config/agent.yaml \
+          --resolv-conf=/opt/k3s/config/resolv.conf \
+          --private-registry=/opt/k3s/config/registries.yaml \
+          --server=https://$(cat #{NODE_SERVER_IP_FILE}):6443 \
+          --token=$(cat #{NODE_TOKEN_FILE}) \
+          --node-ip=#{NODE_IP} \
+          --node-external-ip=#{NODE_IP}
+        EOF
+      end
+    end
+  end
+end

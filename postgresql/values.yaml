@@ -1,0 +1,43 @@
+auth:
+  enablePostgresUser: true
+  postgresPassword: postgres
+
+architecture: standalone
+
+containerPorts:
+  postgresql: 5432
+
+primary:
+  ## PostgreSQL Primary resource requests and limits
+  ## ref: https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
+  ## @param primary.resourcesPreset Set container resources according to one common preset (allowed values: none, nano, micro, small, medium, large, xlarge, 2xlarge). This is ignored if primary.resources is set (primary.resources is recommended for production).
+  ## More information: https://github.com/bitnami/charts/blob/main/bitnami/common/templates/_resources.tpl#L15
+  ##
+  resourcesPreset: "small"
+  service:
+    type: ClusterIP
+    ports:
+      postgresql: 5432
+  initdb:
+    ## @param primary.initdb.scripts Dictionary of initdb scripts
+    ## Specify dictionary of scripts to be run at first boot
+    ## e.g:
+    ## scripts:
+    ##   my_init_script.sh: |
+    ##      #!/bin/sh
+    ##      echo "Do something."
+    ##
+    scripts: {}
+    ## @param primary.initdb.scriptsConfigMap ConfigMap with scripts to be run at first boot
+    ## NOTE: This will override `primary.initdb.scripts`
+    ##
+    scriptsConfigMap: "postgresql-initdb"
+    ## @param primary.initdb.user Specify the PostgreSQL username to execute the initdb scripts
+    ##
+    user: postgres
+    ## @param primary.initdb.password Specify the PostgreSQL password to execute the initdb scripts
+    ##
+    password: postgres
+
+volumePermissions:
+  enabled: true

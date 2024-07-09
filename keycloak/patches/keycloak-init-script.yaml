@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keycloak-init
+data:
+  default.yaml: |
+    realm: default
+    displayName: default # realm alias
+    # displayNameHtml: "<div class=\"kc-logo-text\"><span>Keycloak:Default</span></div>" # html icon label
+    enabled: true
+    registrationAllowed: true
+    resetPasswordAllowed: true
+    rememberMe: true
+    verifyEmail: false
+    clients:
+    - clientId: kubeflow
+      name: kubeflow
+      clientAuthenticatorType: client-secret
+      secret: kubeflow-auth-client-secret
+      directAccessGrantsEnabled: true
+      serviceAccountsEnabled: true
+      authorizationServicesEnabled: true
+      redirectUris:
+      - https://kubeflow.geniouslab.io/authservice/oidc/callback
+      webOrigins:
+      - '*'
+    users:
+    - enabled: "true"
+      username: admin
+      credentials:
+      - type: password
+        value: admin
+      email: admin@example.com
+      firstName: admin
+      lastName: admin
+    - enabled: "true"
+      username: user
+      credentials:
+      - type: password
+        value: user
+      email: user@example.com
+      firstName: user
+      lastName: user

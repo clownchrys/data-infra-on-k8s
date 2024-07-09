@@ -1,0 +1,12 @@
+apiVersion: v2
+description: Feast Feature Server in Go or Python
+home: https://feast.dev/
+keywords:
+- machine learning
+- big data
+- mlops
+name: feast-feature-server
+sources:
+- https://github.com/feast-dev/feast
+type: application
+version: 0.37.1

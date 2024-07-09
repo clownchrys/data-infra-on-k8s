@@ -1,0 +1,32 @@
+app:
+  ingress:
+    enabled: true
+    hosts:
+    - kubernetes-dashboard.geniouslab.io
+    ingressClassName: nginx
+    # This will append our Ingress with annotations required by our default configuration.
+    #    nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+    #    nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    #    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    useDefaultAnnotations: true
+    pathType: ImplementationSpecific
+    # If path is not the default (/), rewrite-target annotation will be added to the Ingress.
+    # It allows serving Kubernetes Dashboard on a sub-path. Make sure that the configured path
+    # does not conflict with gateway route configuration.
+    path: /
+    issuer:
+      name: selfsigned
+      # Scope determines what kind of issuer annotation will be used on ingress resource
+      # - default - adds 'cert-manager.io/issuer'
+      # - cluster - adds 'cert-manager.io/cluster-issuer'
+      # - disabled - disables cert-manager annotations
+      scope: default
+    tls:
+      # secretName: kubernetes-dashboard-csrf
+      secretName: ""
+    # annotations:
+    #   nginx.ingress.kubernetes.io/rewrite-taget: /
+
+web:
+  containers:
+    args: []

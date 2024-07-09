@@ -1,0 +1,174 @@
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/
+# https://json.schemastore.org/kustomization.json
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+sortOptions:
+  order: legacy
+  legacySortOptions:
+    orderFirst:
+    - Namespace
+    - ResourceQuota
+    - StorageClass
+    - CustomResourceDefinition
+    - MutatingWebhookConfiguration
+    - ServiceAccount
+    - PodSecurityPolicy
+    - Role
+    - ClusterRole
+    - RoleBinding
+    - ClusterRoleBinding
+    - ConfigMap
+    - Secret
+    - Endpoints
+    - Service
+    - LimitRange
+    - PriorityClass
+    - PersistentVolume
+    - PersistentVolumeClaim
+    - Deployment
+    - StatefulSet
+    - CronJob
+    - PodDisruptionBudget
+    orderLast:
+    - ValidatingWebhookConfiguration
+
+resources:
+# Cert-Manager
+# - ../manifests/common/cert-manager/cert-manager/base
+- ../manifests/common/cert-manager/kubeflow-issuer/base
+# Istio
+# - ../manifests/common/istio-1-17/istio-crds/base
+# - ../manifests/common/istio-1-17/istio-namespace/base
+# - ../manifests/common/istio-1-17/istio-install/base
+# OIDC Authservice
+- ../manifests/common/oidc-client/oidc-authservice/base
+# Dex
+# - ../manifests/common/dex/overlays/istio
+# KNative
+- ../manifests/common/knative/knative-serving/overlays/gateways
+- ../manifests/common/knative/knative-eventing/base
+- ../manifests/common/istio-1-17/cluster-local-gateway/base
+# Kubeflow namespace
+- ../manifests/common/kubeflow-namespace/base
+# Kubeflow Roles
+- ../manifests/common/kubeflow-roles/base
+# Kubeflow Istio Resources
+- ../manifests/common/istio-1-17/kubeflow-istio-resources/base
+
+# Kubeflow Pipelines
+- ../manifests/apps/pipeline/upstream/env/cert-manager/platform-agnostic-multi-user
+# Katib
+- ../manifests/apps/katib/upstream/installs/katib-with-kubeflow
+# Central Dashboard
+- ../manifests/apps/centraldashboard/upstream/overlays/kserve
+# Admission Webhook
+- ../manifests/apps/admission-webhook/upstream/overlays/cert-manager
+# Jupyter Web App
+- ../manifests/apps/jupyter/jupyter-web-app/upstream/overlays/istio
+# Notebook Controller
+- ../manifests/apps/jupyter/notebook-controller/upstream/overlays/kubeflow
+# Profiles + KFAM
+- ../manifests/apps/profiles/upstream/overlays/kubeflow
+# PVC Viewer
+- ../manifests/apps/pvcviewer-controller/upstream/base/
+# Volumes Web App
+- ../manifests/apps/volumes-web-app/upstream/overlays/istio
+# Tensorboards Controller
+- ../manifests/apps/tensorboard/tensorboard-controller/upstream/overlays/kubeflow
+# Tensorboard Web App
+- ../manifests/apps/tensorboard/tensorboards-web-app/upstream/overlays/istio
+# Training Operator
+- ../manifests/apps/training-operator/upstream/overlays/kubeflow
+# User namespace
+# - ../manifests/common/user-namespace/base
+
+# KServe
+- ../manifests/contrib/kserve/kserve
+- ../manifests/contrib/kserve/models-web-app/overlays/kubeflow
+
+
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/configmapgenerator/
+# behaviors: create|replace|merge
+configMapGenerator:
+# common/oidc-authservice/base/params.env
+# >> for keycloak integration
+- name: oidc-authservice-parameters
+  behavior: replace
+  envs:
+  - ./authservice/params.env
+
+
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/secretgenerator/
+secretGenerator:
+# common/oidc-authservice/base/secret_params.env
+# >> for keycloak integration
+- name: oidc-authservice-client
+  behavior: replace
+  envs:
+  - ./authservice/secret_params.env
+
+
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patches/
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patchesstrategicmerge/
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/patchesjson6902/
+patches:
+# common/knative/knative-serving/base/upstream/serving-core.yaml
+# >> api version upgrade, due to k8s version
+- target:
+    version: autoscaling/v2beta2
+    kind: HorizontalPodAutoscaler
+  patch: |
+    - op: replace
+      path: /apiVersion
+      value: autoscaling/v2
+# apps/centraldashboard/upstream/base/params.env
+# >> disable to create namespace for new user
+- target:
+    kind: ConfigMap 
+    name: centraldashboard-parameters
+  patch: |
+    - op: replace
+      path: /data/CD_REGISTRATION_FLOW
+      value: "false"
+# apps/centraldashboard/upstream/overlays/kserve/patches/configmap.yaml
+# >> added mlflow menu
+- target:
+    kind: ConfigMap
+    name: centraldashboard-config
+  path: ./centraldashboard/config.yaml
+# common/oidc-authservice/base/statefulset.yaml
+# >> for keycloak integration
+- target:
+    kind: StatefulSet
+    name: oidc-authservice
+  path: ./authservice/statefulset.yaml
+# common/istio-1-16/kubeflow-istio-resources/base/kf-istio-resources.yaml
+# >> due to no ssl
+- target:
+    kind: Gateway
+    name: kubeflow-gateway
+  path: ./istio-resources/kubeflow-gateway.yaml
+# apps/jupyter/jupyter-web-app/upstream/base/params.env
+# >> due to no ssl
+- target:
+    kind: ConfigMap
+    name: jupyter-web-app-parameters
+  patch: |
+    - op: replace
+      path: /data/JWA_APP_SECURE_COOKIES
+      value: "false"
+# apps/volumes-web-app/upstream/base/params.env
+# >> due to no ssl
+- target:
+    kind: ConfigMap
+    name: volumes-web-app-parameters
+  patch: |
+    - op: replace
+      path: /data/VWA_APP_SECURE_COOKIES
+      value: "false"
+
+
+# https://kubectl.docs.kubernetes.io/references/kustomize/kustomization/replacements/
+# replacements:

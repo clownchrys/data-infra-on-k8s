@@ -1,0 +1,28 @@
+name: istio-ingressgateway
+
+serviceAccount:
+  create: true
+  name: istio-ingressgateway-service-account
+
+podAnnotations:
+  prometheus.io/port: "15020"
+  prometheus.io/scrape: "true"
+  prometheus.io/path: "/stats/prometheus"
+  # inject.istio.io/templates: "gateway"
+  sidecar.istio.io/inject: "false"
+
+service:
+  type: ClusterIP
+  # ports:
+  # - name: status-port
+  #   port: 15021
+  #   protocol: TCP
+  #   targetPort: 15021
+  # - name: http2
+  #   port: 80
+  #   protocol: TCP
+  #   targetPort: 80
+  # - name: https
+  #   port: 443
+  #   protocol: TCP
+  #   targetPort: 443

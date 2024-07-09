@@ -1,0 +1,23 @@
+# sed \
+# -e 's/<PROFILE_NAME>/kubeflow-ml-space/g' \
+# -e 's/<RAW_OWNER_EMAIL>/user@example.com/g' \
+# kubeflow/patches/template_profile.yaml
+
+---
+apiVersion: kubeflow.org/v1
+kind: Profile
+metadata:
+  name: <PROFILE_NAME>
+spec:
+  owner:
+    kind: User
+    name: <RAW_OWNER_EMAIL>
+
+  ## plugins extend the functionality of the profile
+  ## https://github.com/kubeflow/kubeflow/tree/master/components/profile-controller#plugins
+  plugins: []
+
+  ## optionally create a ResourceQuota for the profile
+  ## https://github.com/kubeflow/kubeflow/tree/master/components/profile-controller#resourcequotaspec
+  ## https://kubernetes.io/docs/reference/kubernetes-api/policy-resources/resource-quota-v1/#ResourceQuotaSpec
+  resourceQuotaSpec: {}

@@ -1,0 +1,94 @@
+# For FQDN resolving of the controller service. Change this value to match your existing configuration.
+# ref: https://github.com/kubernetes/dns/blob/master/docs/specification.md
+# -- Override the cluster name for FQDN resolving
+clusterZone: "cluster.local"
+
+# -- The URL of the Kubernetes API server
+kubernetesURL: "https://kubernetes.default.svc.cluster.local"
+
+# -- The Jenkins credentials to access the Kubernetes API server. For the default cluster it is not needed.
+credentialsId:
+
+controller:
+  image:
+    # -- Controller image registry
+    registry: "docker.io"
+    # -- Controller image repository
+    repository: "jenkins/jenkins"
+
+    # -- Controller image tag override; i.e., tag: "2.440.1-jdk17"
+    tag:
+
+    # -- Controller image tag label
+    tagLabel: jdk17
+    # -- Controller image pull policy
+    pullPolicy: "IfNotPresent"
+
+  # Plugins will be installed during Jenkins controller start
+  # -- List of Jenkins plugins to install. If you don't want to install plugins, set it to `false`
+  installPlugins:
+    - kubernetes:4203.v1dd44f5b_1cf9
+    - workflow-aggregator:596.v8c21c963d92d
+    - git:5.2.1
+    - configuration-as-code:1775.v810dc950b_514
+    # - generic-webhook-trigger:2.2.0
+    # - github-api:1.318-461.v7a_c09c9fa_d63
+    # - github-pullrequest:0.7.0
+
+  # When enabling LDAP or another non-Jenkins identity source, the built-in admin account will no longer exist.
+  # If you disable the non-Jenkins identity store and instead use the Jenkins internal one,
+  # you should revert controller.admin.username to your preferred admin user:
+  admin:
+
+    # -- Admin username created as a secret if `controller.admin.createSecret` is true
+    username: "jenkins"
+    # -- Admin password created as a secret if `controller.admin.createSecret` is true
+    # @default -- <random password>
+    password: "jenkins"
+
+  ingress:
+    # -- Enables ingress
+    enabled: true
+
+    # Override for the default paths that map requests to the backend
+    # -- Override for the default Ingress paths
+    paths: []
+    # - backend:
+    #     serviceName: ssl-redirect
+    #     servicePort: use-annotation
+    # - backend:
+    #     serviceName: >-
+    #       {{ template "jenkins.fullname" . }}
+    #     # Don't use string here, use only integer value!
+    #     servicePort: 8080
+
+    # For Kubernetes v1.14+, use 'networking.k8s.io/v1beta1'
+    # For Kubernetes v1.19+, use 'networking.k8s.io/v1'
+    # -- Ingress API version
+    apiVersion: "networking.k8s.io/v1"
+    # -- Ingress labels
+    labels: {}
+    # -- Ingress annotations
+    annotations:
+      nginx.ingress.kubernetes/rewrite-taget: /
+      nginx.ingress.kubernetes/ssl-redirect: "false"
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    # For Kubernetes >= 1.18 you should specify the ingress-controller via the field ingressClassName
+    # See https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/#specifying-the-class-of-an-ingress
+    ingressClassName: nginx
+
+    # Set this path to jenkinsUriPrefix above or use annotations to rewrite path
+    # -- Ingress path
+    path: /
+
+    # configures the hostname e.g. jenkins.example.com
+    # -- Ingress hostname
+    hostName: jenkins.geniouslab.io
+    # -- Hostname to serve assets from
+    resourceRootUrl:
+    # -- Ingress TLS configuration
+    tls: []
+    # - secretName: jenkins.cluster.local
+    #   hosts:
+    #     - jenkins.cluster.local

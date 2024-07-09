@@ -1,0 +1,182 @@
+
+# One of: LocalExecutor, LocalKubernetesExecutor, CeleryExecutor, KubernetesExecutor, CeleryKubernetesExecutor
+executor: "KubernetesExecutor"
+
+env:
+  - name: TZ
+    value: Asia/Seoul
+  - name: AIRFLOW_CORE_DEFAULT_TIMEZONE
+    value: Asia/Seoul
+  - name: AIRFLOW_WEBSERVER_DEFAULT_TIMEZONE
+    value: Asia/Seoul
+  - name: AIRFLOW__CORE__LOAD_EXAMPLES
+    value: 'True'
+
+# TODO: difference from `env`? This is a templated string. Probably should template `env` and remove this.
+extraEnv: ~
+
+data:
+  metadataConnection:
+    protocol: postgresql
+    host: postgresql.postgresql.svc.cluster.local
+    port: 5432
+    user: airflow_service
+    pass: airflow_service
+    db: airflow
+    sslmode: disable
+  resultBackendConnection:
+    protocol: redis
+    host: redis-master.redis.svc.cluster.local
+    port: 6379
+    user: ""
+    pass: redis
+    db: airflow
+    sslmode: disable
+  brokerUrl: ~
+
+webserver:
+  enabled: true
+  replicas: 1
+  livenessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 60
+    timeoutSeconds: 10
+    failureThreshold: 5
+    scheme: HTTP
+  readinessProbe:
+    timeoutSeconds: 120
+    failureThreshold: 20
+    periodSeconds: 60
+    scheme: HTTP
+  startupProbe:
+    timeoutSeconds: 120
+    failureThreshold: 20
+    periodSeconds: 60
+    scheme: HTTP
+  defaultUser:
+    enabled: true
+    role: Admin
+    username: airflow_admin
+    password: airflow_admin
+    email: admin@example.com
+    firstName: admin
+    lastName: user
+
+scheduler:
+  enabled: true
+  replicas: 1
+  livenessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 60
+    timeoutSeconds: 120
+    failureThreshold: 20
+  startupProbe:
+    timeoutSeconds: 120
+    failureThreshold: 20
+    periodSeconds: 60
+
+workers:
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 5Gi
+    fixPermissions: true
+  # extraVolumes:
+  #   - name: airflow-extras
+  #     persistentVolumeClaim:
+  #       claimName: airflow-extras
+  # extraVolumeMounts:
+  #   - name: airflow-extras
+  #     mountPath: /opt/airflow/share
+  #     readOnly: false
+
+triggerer:
+  enabled: true
+  replicas: 1
+
+dagProcessor:
+  enabled: false
+  replicas: 1
+
+flower:
+  enabled: false
+
+statsd:
+  enabled: true
+
+pgbouncer:
+  enabled: false
+  replicas: 1
+
+postgresql:
+  enabled: false
+
+redis:
+  enabled: false
+
+elasticsearch:
+  enabled: false
+
+dags:
+  mountPath: ~
+  persistence:
+    enabled: false
+  gitSync:
+    enabled: false
+
+logs:
+  persistence:
+    enabled: true
+    existingClaim: airflow-logs
+
+createUserJob:
+  useHelmHooks: false
+  applyCustomEnv: false
+
+migrateDatabaseJob:
+  enabled: true
+  useHelmHooks: false
+  applyCustomEnv: false
+
+cleanup:
+  enabled: false
+  schedule: "*/15 * * * *"
+
+ports:
+  flowerUI: 5555
+  airflowUI: 8080
+  workerLogs: 8793
+  triggererLogs: 8794
+  redisDB: 6379
+  statsdIngest: 9125
+  statsdScrape: 9102
+  pgbouncer: 6543
+  pgbouncerScrape: 9127
+
+ingress:
+  web:
+    enabled: true
+    ingressClassName: nginx
+    annotations:
+      nginx.ingress.kubernetes/rewrite-taget: / # /$1
+    host: airflow.geniouslab.io # k8s.geniouslab.io
+    path: / # /airflow/?(.*)
+    pathType: ImplementationSpecific
+  flower:
+    enabled: false
+
+rbac:
+  create: true
+  createSCCRoleBinding: false
+
+# Config settings to go into the mounted airflow.cfg
+#
+# Please note that these values are passed through the `tpl` function, so are
+# all subject to being rendered as go templates. If you need to include a
+# literal `{{` in a value, it must be expressed like this:
+#
+#    a: '{{ "{{ not a template }}" }}'
+#
+# Do not set config containing secrets via plain text values, use Env Var or k8s secret object
+# yamllint disable rule:line-length
+config: {}

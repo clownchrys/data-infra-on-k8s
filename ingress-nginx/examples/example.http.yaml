@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: airflow-ingress
+  labels:
+    name: airflow-ingress
+  annotations:
+    # rewrite-taget:
+    # rule 의 path 에 지정된 경로를 설정된 타겟 경로로 Redirect 한다.
+    nginx.ingress.kubernetes/rewrite-taget: /
+    nginx.ingress.kubernetes/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: airflow.local.k8s.io       # 이 호스트 명으로 접근하는 요청에 대해 ingress rule 적용
+    http:                            # http 프로토콜을 사용하여
+      paths:
+      - pathType: Prefix
+        path: "/"                    # 이 경로로 접근하는 요청을
+        backend:
+          service:
+            name: airflow-webserver  # 이 Service 의 (ingress 와 같은 네임스페이스에 있는)
+            port: 
+              number: 8080           # 이 포트로 전달

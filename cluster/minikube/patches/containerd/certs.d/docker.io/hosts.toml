@@ -1,0 +1,7 @@
+server = "https://registry-1.docker.io"
+
+[host."https://mirror-1.registry.docker.io"]
+  capabilities = ["pull", "resolve"]
+
+[host."https://mirror-2.registry.docker.io"]
+  capabilities = ["pull", "resolve"]

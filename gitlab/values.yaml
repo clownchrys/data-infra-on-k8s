@@ -1,0 +1,164 @@
+global:
+
+  ## https://docs.gitlab.com/charts/installation/deployment#deploy-the-community-edition
+  edition: ce
+
+  ## https://docs.gitlab.com/charts/charts/globals#gitlab-version
+  gitlabVersion: "16.10.3"
+
+  ## https://docs.gitlab.com/charts/charts/globals#configure-host-settings
+  hosts:
+    domain: gitlab.geniouslab.io
+    # hostSuffix:
+    https: false
+    # externalIP:
+    ssh: gitlab.geniouslab.io
+    gitlab:
+      https: false
+      name: gitlab.geniouslab.io
+      # hostnameOverride: ~
+      # serviceName: webservice
+      # servicePort: workhorse
+    minio:
+      https: false
+      name: minio.gitlab.geniouslab.io
+      # serviceName: minio
+      # servicePort: minio
+    registry:
+      https: false
+      name: registry.gitlab.geniouslab.io
+      # serviceName: registry
+      # servicePort: registry
+    smartcard:
+      name: smartcard.gitlab.geniouslab.io
+    kas:
+      https: false
+      name: kas.gitlab.geniouslab.io
+    pages:
+      https: false
+      name: pages.gitlab.geniouslab.io
+    # tls: {}
+
+  ## https://docs.gitlab.com/charts/charts/globals#configure-ingress-settings
+  ingress:
+    enabled: true
+    configureCertmanager: false
+    provider: nginx
+    class: nginx
+    annotations: {}
+    tls:
+      enabled: false
+        # secretName:
+    path: /
+    pathType: Prefix
+
+  workhorse:
+    serviceName: webservice-default
+    # scheme:
+    # host:
+    # port:
+    ## https://docs.gitlab.com/charts/installation/secrets#gitlab-workhorse-secret
+    # secret:
+    # key:
+    tls:
+      enabled: false
+
+## https://docs.gitlab.com/charts/charts/nginx/
+## https://docs.gitlab.com/charts/architecture/decisions#nginx-ingress
+## Installation & configuration of charts/ingress-nginx:
+nginx-ingress: &nginx-ingress
+  enabled: false
+
+## Settings to for the Let's Encrypt ACME Issuer
+certmanager-issuer:
+  # The email address to register certificates requested from Let's Encrypt.
+  # Required if using Let's Encrypt.
+  email: email@example.com
+
+## Installation & configuration of jetstack/cert-manager
+## See requirements.yaml for current version
+certmanager:
+  # Install cert-manager chart. Set to false if you already have cert-manager
+  # installed or if you are not using cert-manager.
+  install: false
+
+## Installation & configuration of gitlab/gitlab-runner
+## See requirements.yaml for current version
+gitlab-runner:
+  install: true
+  gitlabUrl: http://gitlab-webservice-default.gitlab.svc.cluster.local:8181
+  rbac:
+    create: true
+    ## Read more about the recommended rules on the following link
+    ##
+    ## ref: https://docs.gitlab.com/runner/executors/kubernetes.html#configure-runner-api-permissions
+    ##
+    rules: []
+    # - resources: ["configmaps", "events", "pods", "pods/attach", "pods/exec", "secrets", "services"]
+    #   verbs: ["get", "list", "watch", "create", "patch", "update", "delete"]
+    # - apiGroups: [""]
+    #   resources: ["pods/exec"]
+    #   verbs: ["create", "patch", "delete"]
+    # - apiGroups: [""]
+    #   resources: ["pods/log"]
+    #   verbs: ["get"]
+  runners:
+    locked: false
+    # Set secret to an arbitrary value because the runner chart renders the gitlab-runner.secret template only if it is not empty.
+    # The parent/GitLab chart overrides the template to render the actual secret name.
+    secret: "nonempty"
+    # https://docs.gitlab.com/runner/configuration/advanced-configuration.html
+    config: |
+      [[runners]]
+        url = "http://{{ .Values.global.hosts.gitlab.name }}"
+        clone_url = "http://{{ .Release.Name }}-{{ .Values.global.workhorse.serviceName }}.{{ .Release.Namespace }}.svc.cluster.local:8181"
+        executor = "kubernetes"
+        environment = [ "BUILD_ENV=gitlab-runner" ]
+        [runners.kubernetes]
+          image = "ubuntu:22.04"
+          namespace = "{{ .Release.Namespace }}"
+          pull_policy = [ "always", "if-not-present" ]
+          allowed_pull_policies = [ "always", "never", "if-not-present" ]
+        [runners.docker]
+        {{- if .Values.global.minio.enabled }}
+        [runners.cache]
+          Type = "s3"
+          Path = "gitlab-runner"
+          Shared = true
+          [runners.cache.s3]
+            ServerAddress = {{ include "gitlab-runner.cache-tpl.s3ServerAddress" . }}
+            BucketName = "runner-cache"
+            BucketLocation = "us-east-1"
+            Insecure = false
+        {{ end }}
+  podAnnotations:
+    gitlab.com/prometheus_scrape: "true"
+    gitlab.com/prometheus_port: 9252
+
+  # NOTE: values in sub-chart
+
+  ## GitLab Runner Image
+  ##
+  ## By default it's using registry.gitlab.com/gitlab-org/gitlab-runner:alpine-v{VERSION}
+  ## where {VERSION} is taken from Chart.yaml from appVersion field
+  ##
+  ## ref: https://gitlab.com/gitlab-org/gitlab-runner/container_registry/29383?orderBy=NAME&sort=asc&search[]=alpine-v&search[]=
+  ##
+  ## Note: If you change the image to the ubuntu release
+  ##       don't forget to change the securityContext;
+  ##       these images run on different user IDs.
+  ##
+  image:
+    registry: registry.gitlab.com
+    image: gitlab-org/gitlab-runner
+    # tag: alpine-v{{.Chart.AppVersion}}
+  imagePullPolicy: IfNotPresent
+
+  ## Configure the maximum number of concurrent jobs
+  ## ref: https://docs.gitlab.com/runner/configuration/advanced-configuration.html#the-global-section
+  ##
+  concurrent: 10
+
+  ## How many runner pods to launch.
+  ##
+  replicas: 1

@@ -1,0 +1,73 @@
+# [NOTE]
+# This file specifies registry configuration for specific namespace
+
+# certs.d
+#   /<namespace>
+#     /hosts.toml
+
+################################################
+#          Example. Image Name Format          #
+################################################
+
+# <namespace>/<account>/<repository>:<tag>
+# crictl pull example.io/bitnami/airflow:latest
+
+############################################
+#          Example. Request Order          #
+############################################
+
+# mirror-1 > mirror-2 > mirror-3 > private-registry
+
+######################################
+#          Available Fields          #
+######################################
+
+server = "https://private.registry.io"
+
+# https://github.com/containerd/containerd/blob/main/docs/hosts.md#capabilities-field
+
+# Registry Type     Pull  Resolve   Push
+# Public Registry   yes   yes       yes
+# Private Registry	yes   yes       yes
+# Public Mirror     yes   no        no
+# Private Mirror    yes   yes       no
+
+capabilities = ["pull", "resolve", "push"]
+
+# https://github.com/containerd/containerd/blob/main/docs/hosts.md#ca-field
+# ca = "ca.pem"
+ca = ["ca.pem", "/etc/certs/another_ca.pem"]
+
+# https://github.com/containerd/containerd/blob/main/docs/hosts.md#client-field
+# client = "/etc/certs/client.pem"
+# client = ["/etc/certs/client-1.pem", "/etc/certs/client-2.pem"]
+client = [["/etc/certs/client.cert", "/etc/certs/client.key"],["/etc/certs/client.pem", ""]]
+
+# https://github.com/containerd/containerd/blob/main/docs/hosts.md#skip_verify-field
+skip_verify = false
+
+# https://github.com/containerd/containerd/blob/main/docs/hosts.md#header-fields-in-the-toml-table-format
+[header]
+  # echo -n "${USERNAME}:${PASSWORD}" | base64
+  authorization = "Basic xxxxxxxxxxx",
+  x-custom-1 = ["custom header part a", "part b"],
+  x-custom-1-2 = "another custom header"
+
+# https://github.com/containerd/containerd/blob/main/docs/hosts.md#override_path-field
+override_path = true
+
+# https://github.com/containerd/containerd/blob/main/docs/hosts.md#host-fields-in-the-toml-table-format
+[host."https://mirror-1.registry.io"]
+  capabilities = ["pull", "resolve"]
+  skip_verify = false
+  ca = "/etc/certs/mirror.pem"
+  client = [["/etc/certs/client.cert", "/etc/certs/client.key"],["/etc/certs/client.pem", ""]]
+  [host."https://mirror-1.registry.io".header]
+    x-custom-2 = ["value1", "value2"]
+  override_path = true
+
+[host."https://mirror-2.registry.io"]
+  capabilities = ["pull", "resolve"]
+
+[host."https://mirror-3.registry.io"]
+  capabilities = ["pull", "resolve"]

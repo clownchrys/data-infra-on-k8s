@@ -1,0 +1,7 @@
+server = "https://registry.k8s.io"
+
+[host."https://mirror-1.registry.k8s.io"]
+  capabilities = ["pull", "resolve"]
+
+[host."https://mirror-2.registry.k8s.io"]
+  capabilities = ["pull", "resolve"]

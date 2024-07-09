@@ -1,0 +1,6 @@
+[host."http://private.registry.io"]
+  capabilities = ["pull", "resolve"]
+  
+  [host."http://private.registry.io".header]
+    # echo -n "${USERNAME}:${PASSWORD}" | base64
+    authorization = "Basic xxxxxxxxxxx"

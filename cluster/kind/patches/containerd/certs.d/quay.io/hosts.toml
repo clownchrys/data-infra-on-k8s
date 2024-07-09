@@ -1,0 +1,8 @@
+# server = "https://private.registry.quay.io" # ErrImagePull
+server = "https://quay.io"
+
+[host."https://mirror-1.registry.quay.io"]
+  capabilities = ["pull", "resolve"]
+
+[host."https://mirror-2.registry.quay.io"]
+  capabilities = ["pull", "resolve"]

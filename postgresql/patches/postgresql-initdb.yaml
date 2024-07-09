@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgresql-initdb
+data:
+  common.sh: |
+    #!/bin/bash
+    function create_user() {
+      export USERNAME=$1
+      export PASSWORD=$2
+      PGPASSWORD=$POSTGRES_PASSWORD psql -U postgres <<< "CREATE USER $USERNAME WITH CREATEDB PASSWORD '$PASSWORD'"
+    }
+    function create_db() {
+      local DATABASE=$1
+      PGPASSWORD=$POSTGRES_PASSWORD psql -U postgres <<< "CREATE DATABASE $DATABASE"
+      PGPASSWORD=$POSTGRES_PASSWORD psql -U postgres <<< "GRANT ALL PRIVILEGES ON DATABASE $DATABASE TO $USERNAME"
+      PGPASSWORD=$POSTGRES_PASSWORD psql -U postgres <<< "ALTER DATABASE $DATABASE OWNER TO $USERNAME"
+    }
+
+  airflow.sh: |
+    #!/bin/bash
+    source /docker-entrypoint-initdb.d/common.sh
+    create_user airflow_service airflow_service
+    create_db airflow
+
+  feast.sh : |
+    #!/bin/bash
+    source /docker-entrypoint-initdb.d/common.sh
+    create_user feast_service feast_service
+    create_db feast_registry
+    create_db feast_online
+    create_db feast_offline
+
+  mlflow.sh: |
+    #!/bin/bash
+    source /docker-entrypoint-initdb.d/common.sh
+    create_user mlflow_service mlflow_service
+    create_db mlflow
+    create_db mlflow_auth
+
+  harbor.sh: |
+    #!/bin/bash
+    source /docker-entrypoint-initdb.d/common.sh
+    create_user harbor_service harbor_service
+    create_db harbor_registry
+
+  keycloak.sh: |
+    #!/bin/bash
+    source /docker-entrypoint-initdb.d/common.sh
+    create_user keycloak_service keycloak_service
+    create_db keycloak

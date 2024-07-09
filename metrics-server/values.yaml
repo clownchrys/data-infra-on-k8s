@@ -1,0 +1,5 @@
+args:
+  # https://kschoi728.tistory.com/69
+  # https://github.com/kubernetes-sigs/metrics-server/issues/196
+  - --kubelet-insecure-tls
+  - --kubelet-preferred-address-types=Hostname,InternalDNS,InternalIP,ExternalDNS,ExternalIP,

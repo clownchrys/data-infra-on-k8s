@@ -1,0 +1,108 @@
+clusterName: "elasticsearch"
+nodeGroup: "data"
+
+roles:
+  # - master
+  - data
+  # - data_content
+  # - data_hot
+  # - data_warm
+  # - data_cold
+  # - ingest
+  - ml
+  # - remote_cluster_client
+  # - transform
+
+replicas: 2
+minimumMasterNodes: 1
+
+esConfig:
+  elasticsearch.yml: |
+    xpack.security:
+      enabled: true
+      transport.ssl:
+        enabled: true
+        verification_mode: certificate
+        key: /usr/share/elasticsearch/config/certs/tls.key
+        certificate: /usr/share/elasticsearch/config/certs/tls.crt
+        certificate_authorities: /usr/share/elasticsearch/config/certs/ca.crt
+      http.ssl:
+        enabled: true
+        key: /usr/share/elasticsearch/config/certs/tls.key
+        certificate: /usr/share/elasticsearch/config/certs/tls.crt
+        certificate_authorities: /usr/share/elasticsearch/config/certs/ca.crt
+      authc.realms.native.local.order: 0
+  # log4j2.properties: |
+  #   key = value
+
+createCert: false
+
+extraEnvs:
+  - name: ELASTIC_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: elasticsearch-master-credentials
+        key: password
+  - name: ELASTIC_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: elasticsearch-master-credentials
+        key: username
+
+# elastic-credentials
+secret:
+  enabled: false
+  password: "elastic" # generated randomly if not defined
+
+secretMounts:
+  # - name: elastic-certificates
+  - name: elastic-cluster-local-tls
+    secretName: elastic-cluster-local-tls
+    path: /usr/share/elasticsearch/config/certs
+    defaultMode: 0755
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "512Mi"
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+
+volumeClaimTemplate:
+  accessModes: ["ReadWriteOnce"]
+  # storageClassName: standard
+  resources:
+    requests:
+      storage: 5Gi
+
+persistence:
+  enabled: true
+  labels:
+    # Add default labels for the volumeClaimTemplate of the StatefulSet
+    enabled: true
+  annotations: {}
+
+rbac:
+  create: false
+
+protocol: https
+httpPort: 9200
+transportPort: 9300
+
+service:
+  enabled: false
+
+ingress:
+  enabled: false
+
+nameOverride: ""
+fullnameOverride: ""
+healthNameOverride: ""
+
+readinessProbe:
+  failureThreshold: 3
+  initialDelaySeconds: 10
+  periodSeconds: 10
+  successThreshold: 3
+  timeoutSeconds: 5

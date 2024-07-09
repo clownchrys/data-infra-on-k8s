@@ -1,0 +1,372 @@
+toolbox:
+  enabled: true
+
+cephClusterSpec:
+  mon:
+    count: 2
+    allowMultiplePerNode: false
+
+  mgr:
+    count: 1
+    allowMultiplePerNode: false
+    modules:
+      - name: pg_autoscaler
+        enabled: true
+
+  crashCollector:
+    disable: true
+
+  logCollector:
+    enabled: false
+
+  # enable the ceph dashboard for viewing cluster status
+  dashboard:
+    enabled: true
+    # serve the dashboard under a subpath (useful when you are accessing the dashboard via a reverse proxy)
+    # urlPrefix: /ceph-dashboard
+    # serve the dashboard at the given port.
+    # port: 8443
+    # Serve the dashboard using SSL (if using ingress to expose the dashboard and `ssl: true` you need to set
+    # the corresponding "backend protocol" annotation(s) for your ingress controller of choice)
+    ssl: true
+
+  # Network configuration, see: https://github.com/rook/rook/blob/v1.12.6/Documentation/CRDs/ceph-cluster-crd.md#network-configuration-settings
+  network:
+    connections:
+      encryption:
+        enabled: false
+      compression:
+        enabled: false
+      requireMsgr2: false
+
+  resources:
+    mgr:
+      limits:
+        memory: "1Gi"
+      requests:
+        cpu: "300m"
+        memory: "512Mi"
+    mon:
+      limits:
+        memory: "1Gi"
+      requests:
+        cpu: "500m"
+        memory: "512Mi"
+    osd:
+      limits:
+        memory: "2Gi"
+      requests:
+        cpu: "500m"
+        memory: "1Gi"
+    prepareosd:
+      # limits: It is not recommended to set limits on the OSD prepare job
+      #         since it's a one-time burst for memory that must be allowed to
+      #         complete without an OOM kill.  Note however that if a k8s
+      #         limitRange guardrail is defined external to Rook, the lack of
+      #         a limit here may result in a sync failure, in which case a
+      #         limit should be added.  1200Mi may suffice for up to 15Ti
+      #         OSDs ; for larger devices 2Gi may be required.
+      #         cf. https://github.com/rook/rook/pull/11103
+      requests:
+        cpu: "300m"
+        memory: "50Mi"
+    mgr-sidecar:
+      limits:
+        memory: "100Mi"
+      requests:
+        cpu: "100m"
+        memory: "40Mi"
+    crashcollector:
+      limits:
+        memory: "60Mi"
+      requests:
+        cpu: "100m"
+        memory: "60Mi"
+    logcollector:
+      limits:
+        memory: "1Gi"
+      requests:
+        cpu: "100m"
+        memory: "100Mi"
+    cleanup:
+      limits:
+        memory: "1Gi"
+      requests:
+        cpu: "500m"
+        memory: "100Mi"
+    exporter:
+      limits:
+        memory: "128Mi"
+      requests:
+        cpu: "50m"
+        memory: "50Mi"
+
+ingress:
+  # -- Enable an ingress for the ceph-dashboard
+  dashboard:
+    annotations:
+      kubernetes.io/ingress.class: nginx
+      nginx.ingress.kubernetes.io/tls-acme: "true"
+      nginx.ingress.kubernetes.io/secure-backends: "true"
+      nginx.ingress.kubernetes.io/ssl-passthrough: "true"
+    #   external-dns.alpha.kubernetes.io/hostname: dashboard.example.com
+    #   nginx.ingress.kubernetes.io/rewrite-target: /ceph-dashboard/$2
+      nginx.ingress.kubernetes.io/rewrite-target: /
+    # If the dashboard has ssl: true the following will make sure the NGINX Ingress controller can expose the dashboard correctly
+      nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
+      nginx.ingress.kubernetes.io/server-snippet: |
+        proxy_ssl_verify off;
+    host:
+      name: ceph.geniouslab.io
+    #   path: "/ceph-dashboard(/|$)(.*)"
+    # tls:
+    # - hosts:
+    #     - dashboard.example.com
+    #   secretName: testsecret-tls
+    ## Note: Only one of ingress class annotation or the `ingressClassName:` can be used at a time
+    ## to set the ingress class
+    ingressClassName: nginx
+
+# -- A list of CephBlockPool configurations to deploy
+# @default -- See [below](#ceph-block-pools)
+cephBlockPools:
+  - name: ceph-blockpool
+    # see https://github.com/rook/rook/blob/v1.12.6/Documentation/CRDs/Block-Storage/ceph-block-pool-crd.md#spec for available configuration
+    spec:
+      failureDomain: host
+      replicated:
+        size: 3
+      # Enables collecting RBD per-image IO statistics by enabling dynamic OSD performance counters. Defaults to false.
+      # For reference: https://docs.ceph.com/docs/v1.12.6/mgr/prometheus/#rbd-io-statistics
+      # enableRBDStats: true
+    storageClass:
+      enabled: true
+      name: ceph-block
+      isDefault: false
+      reclaimPolicy: Delete
+      allowVolumeExpansion: true
+      volumeBindingMode: "Immediate"
+      mountOptions: []
+      # see https://kubernetes.io/docs/concepts/storage/storage-classes/#allowed-topologies
+      allowedTopologies: []
+      #        - matchLabelExpressions:
+      #            - key: rook-ceph-role
+      #              values:
+      #                - storage-node
+      # see https://github.com/rook/rook/blob/v1.12.6/Documentation/Storage-Configuration/Block-Storage-RBD/block-storage.md#provision-storage for available configuration
+      parameters:
+        # (optional) mapOptions is a comma-separated list of map options.
+        # For krbd options refer
+        # https://docs.ceph.com/docs/v1.12.6/man/8/rbd/#kernel-rbd-krbd-options
+        # For nbd options refer
+        # https://docs.ceph.com/docs/v1.12.6/man/8/rbd-nbd/#options
+        # mapOptions: lock_on_read,queue_depth=1024
+
+        # (optional) unmapOptions is a comma-separated list of unmap options.
+        # For krbd options refer
+        # https://docs.ceph.com/docs/v1.12.6/man/8/rbd/#kernel-rbd-krbd-options
+        # For nbd options refer
+        # https://docs.ceph.com/docs/v1.12.6/man/8/rbd-nbd/#options
+        # unmapOptions: force
+
+        # RBD image format. Defaults to "2".
+        imageFormat: "2"
+
+        # RBD image features, equivalent to OR'd bitfield value: 63
+        # Available for imageFormat: "2". Older releases of CSI RBD
+        # support only the `layering` feature. The Linux kernel (KRBD) supports the
+        # full feature complement as of 5.4
+        imageFeatures: layering
+
+        # These secrets contain Ceph admin credentials.
+        csi.storage.k8s.io/provisioner-secret-name: rook-csi-rbd-provisioner
+        csi.storage.k8s.io/provisioner-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/controller-expand-secret-name: rook-csi-rbd-provisioner
+        csi.storage.k8s.io/controller-expand-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/node-stage-secret-name: rook-csi-rbd-node
+        csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
+        # Specify the filesystem type of the volume. If not specified, csi-provisioner
+        # will set default as `ext4`. Note that `xfs` is not recommended due to potential deadlock
+        # in hyperconverged settings where the volume is mounted on the same node as the osds.
+        csi.storage.k8s.io/fstype: ext4
+
+# -- A list of CephFileSystem configurations to deploy
+# @default -- See [below](#ceph-file-systems)
+cephFileSystems:
+  - name: ceph-filesystem
+    # see https://github.com/rook/rook/blob/v1.14.5/Documentation/CRDs/Shared-Filesystem/ceph-filesystem-crd.md#filesystem-settings for available configuration
+    spec:
+      metadataPool:
+        replicated:
+          size: 3
+      dataPools:
+        - failureDomain: host
+          replicated:
+            size: 3
+          # Optional and highly recommended, 'data0' by default, see https://github.com/rook/rook/blob/v1.14.5/Documentation/CRDs/Shared-Filesystem/ceph-filesystem-crd.md#pools
+          name: data0
+      metadataServer:
+        activeCount: 1
+        activeStandby: true
+        resources:
+          limits:
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+        priorityClassName: system-cluster-critical
+    storageClass:
+      enabled: true
+      isDefault: false
+      name: ceph-filesystem
+      # (Optional) specify a data pool to use, must be the name of one of the data pools above, 'data0' by default
+      pool: data0
+      reclaimPolicy: Delete
+      allowVolumeExpansion: true
+      volumeBindingMode: "Immediate"
+      mountOptions: []
+      # see https://github.com/rook/rook/blob/v1.14.5/Documentation/Storage-Configuration/Shared-Filesystem-CephFS/filesystem-storage.md#provision-storage for available configuration
+      parameters:
+        # The secrets contain Ceph admin credentials.
+        csi.storage.k8s.io/provisioner-secret-name: rook-csi-cephfs-provisioner
+        csi.storage.k8s.io/provisioner-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/controller-expand-secret-name: rook-csi-cephfs-provisioner
+        csi.storage.k8s.io/controller-expand-secret-namespace: "{{ .Release.Namespace }}"
+        csi.storage.k8s.io/node-stage-secret-name: rook-csi-cephfs-node
+        csi.storage.k8s.io/node-stage-secret-namespace: "{{ .Release.Namespace }}"
+        # Specify the filesystem type of the volume. If not specified, csi-provisioner
+        # will set default as `ext4`. Note that `xfs` is not recommended due to potential deadlock
+        # in hyperconverged settings where the volume is mounted on the same node as the osds.
+        csi.storage.k8s.io/fstype: ext4
+
+# -- A list of CephObjectStore configurations to deploy
+# @default -- See [below](#ceph-object-stores)
+cephObjectStores:
+  - name: ceph-objectstore
+    # see https://github.com/rook/rook/blob/v1.12.6/Documentation/CRDs/Object-Storage/ceph-object-store-crd.md#object-store-settings for available configuration
+    spec:
+      metadataPool:
+        failureDomain: host
+        replicated:
+          size: 3
+      dataPool:
+        failureDomain: host
+        erasureCoded:
+          dataChunks: 2
+          codingChunks: 1
+      preservePoolsOnDelete: true
+      gateway:
+        port: 80
+        resources:
+          limits:
+            cpu: "500m"
+            memory: "1Gi"
+          requests:
+            cpu: "500m"
+            memory: "1Gi"
+        # securePort: 443
+        # sslCertificateRef:
+        instances: 1
+        priorityClassName: system-cluster-critical
+    storageClass:
+      enabled: true
+      name: ceph-bucket
+      reclaimPolicy: Delete
+      volumeBindingMode: "Immediate"
+      # see https://github.com/rook/rook/blob/v1.12.6/Documentation/Storage-Configuration/Object-Storage-RGW/ceph-object-bucket-claim.md#storageclass for available configuration
+      parameters:
+        # note: objectStoreNamespace and objectStoreName are configured by the chart
+        region: us-east-1
+    ingress:
+      # Enable an ingress for the ceph-objectstore
+      enabled: false
+      # annotations: {}
+      # host:
+      #   name: objectstore.example.com
+      #   path: /
+      # tls:
+      # - hosts:
+      #     - objectstore.example.com
+      #   secretName: ceph-objectstore-tls
+      # ingressClassName: nginx
+
+# -- Settings for the block pool snapshot class
+# @default -- See [RBD Snapshots](../Storage-Configuration/Ceph-CSI/ceph-csi-snapshot.md#rbd-snapshots)
+cephBlockPoolsVolumeSnapshotClass:
+  enabled: false
+  name: ceph-block
+  isDefault: false
+  deletionPolicy: Delete
+  annotations: {}
+  labels: {}
+  # see https://rook.io/docs/rook/v1.10/Storage-Configuration/Ceph-CSI/ceph-csi-snapshot/#rbd-snapshots for available configuration
+  parameters: {}
+
+# -- Settings for the filesystem snapshot class
+# @default -- See [CephFS Snapshots](../Storage-Configuration/Ceph-CSI/ceph-csi-snapshot.md#cephfs-snapshots)
+cephFileSystemVolumeSnapshotClass:
+  enabled: false
+  name: ceph-filesystem
+  isDefault: false
+  deletionPolicy: Delete
+  annotations: {}
+  labels: {}
+  # see https://rook.io/docs/rook/v1.10/Storage-Configuration/Ceph-CSI/ceph-csi-snapshot/#cephfs-snapshots for available configuration
+  parameters: {}
+
+## cephECBlockPools are disabled by default, please remove the comments and set desired values to enable it
+## For erasure coded a replicated metadata pool is required.
+## https://rook.io/docs/rook/latest/CRDs/Shared-Filesystem/ceph-filesystem-crd/#erasure-coded
+#cephECBlockPools:
+#  - name: ec-pool
+#    spec:
+#      metadataPool:
+#        replicated:
+#          size: 2
+#      dataPool:
+#        failureDomain: osd
+#        erasureCoded:
+#          dataChunks: 2
+#          codingChunks: 1
+#        deviceClass: hdd
+#
+#    parameters:
+#      # clusterID is the namespace where the rook cluster is running
+#      # If you change this namespace, also change the namespace below where the secret namespaces are defined
+#      clusterID: rook-ceph # namespace:cluster
+#      # (optional) mapOptions is a comma-separated list of map options.
+#      # For krbd options refer
+#      # https://docs.ceph.com/docs/latest/man/8/rbd/#kernel-rbd-krbd-options
+#      # For nbd options refer
+#      # https://docs.ceph.com/docs/latest/man/8/rbd-nbd/#options
+#      # mapOptions: lock_on_read,queue_depth=1024
+#
+#      # (optional) unmapOptions is a comma-separated list of unmap options.
+#      # For krbd options refer
+#      # https://docs.ceph.com/docs/latest/man/8/rbd/#kernel-rbd-krbd-options
+#      # For nbd options refer
+#      # https://docs.ceph.com/docs/latest/man/8/rbd-nbd/#options
+#      # unmapOptions: force
+#
+#      # RBD image format. Defaults to "2".
+#      imageFormat: "2"
+#
+#      # RBD image features, equivalent to OR'd bitfield value: 63
+#      # Available for imageFormat: "2". Older releases of CSI RBD
+#      # support only the `layering` feature. The Linux kernel (KRBD) supports the
+#      # full feature complement as of 5.4
+#      # imageFeatures: layering,fast-diff,object-map,deep-flatten,exclusive-lock
+#      imageFeatures: layering
+#
+#    storageClass:
+#      provisioner: rook-ceph.rbd.csi.ceph.com # csi-provisioner-name
+#      enabled: true
+#      name:  rook-ceph-block
+#      isDefault: false
+#      allowVolumeExpansion: true
+#      reclaimPolicy: Delete
+
+# -- CSI driver name prefix for cephfs, rbd and nfs.
+# @default -- `namespace name where rook-ceph operator is deployed`
+csiDriverNamePrefix:
+
