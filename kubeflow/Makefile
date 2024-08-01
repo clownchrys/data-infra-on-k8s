@@ -23,9 +23,13 @@ ${KUBEFLOW_PREFIX}-init:
 	git submodule update --init --recursive ${KUBEFLOW_MANIFEST_DIR}
 	cd ${KUBEFLOW_MANIFEST_DIR} && git checkout tags/$$(basename ${KUSTOMIZATION})
 	mkdir -p ${KUSTOMIZATION}
-	[ ! -f ${KUSTOMIZATION}/kustomization.yaml ] && \
-		cat ${KUBEFLOW_MANIFEST_DIR}/example/kustomization.yaml | sed 's/\.\.\//\.\.\/\.\.\/manifests\//' > ${KUSTOMIZATION}/kustomization.yaml
-	@echo '\n[INFO] Add lines in ${KUSTOMIZATION}/kustomization.yaml, if you need...'
+	if [ ! -f ${KUSTOMIZATION}/kustomization.yaml ]; then \
+		cat ${KUBEFLOW_MANIFEST_DIR}/example/kustomization.yaml | sed 's/\.\.\//\.\.\/\.\.\/manifests\//' > ${KUSTOMIZATION}/kustomization.yaml; \
+		echo "\n[INFO] ${KUSTOMIZATION}/kustomization.yaml generated..."; \
+	else \
+		echo "\n[INFO] ${KUSTOMIZATION}/kustomization.yaml already exists..."; \
+	fi
+	@echo "[INFO] Add lines in ${KUSTOMIZATION}/kustomization.yaml, if you need..."
 
 ${KUBEFLOW_PREFIX}-tmp:
 	$(MAKE) ${KUBEFLOW_PREFIX}-create-profile ACTION=apply PROFILE_NAME=kubeflow-test-space RAW_OWNER_EMAIL=admin@clownchrys.link
