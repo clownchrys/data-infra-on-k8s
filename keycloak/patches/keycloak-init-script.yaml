@@ -13,14 +13,15 @@ data:
     rememberMe: true
     verifyEmail: false
     clients:
-    - clientId: kubeflow
-      name: kubeflow
+    - clientId: kubeflow-oidc-authservice
+      name: kubeflow-oidc-authservice
       clientAuthenticatorType: client-secret
-      secret: kubeflow-auth-client-secret
+      secret: kubeflow-oidc-authservice-secret
       directAccessGrantsEnabled: true
       serviceAccountsEnabled: true
       authorizationServicesEnabled: true
       redirectUris:
+      - https://kubeflow.geniouslab.io/oauth2/callback
       - https://kubeflow.geniouslab.io/authservice/oidc/callback
       webOrigins:
       - '*'

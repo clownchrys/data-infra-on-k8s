@@ -22,7 +22,7 @@ ${KEYCLOAK}-init:
 	touch ${HELM_VALUES}
 	sed -e 's/<NAMESPACE>/${NAMESPACE}/g' cert-manager/templates/namespace.cert.yaml > ${PATCH_CERTIFICATE}
 
-${KEYCLOAK}-up: cert-manager-up postgresql-up
+${KEYCLOAK}-up: reflector-up cert-manager-up postgresql-up
 	$(call create_ns, ${NAMESPACE})
 	kubectl apply -n ${NAMESPACE} -f ${PATCH_INIT_SCRIPT} ${OPT_KUBECTL_APPLY}
 	kubectl apply -n ${NAMESPACE} -f ${PATCH_CERTIFICATE} ${OPT_KUBECTL_APPLY}

@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pwsh-smb
+  labels:
+    app: pwsh
+spec:
+  replicas: 1
+  template:
+    metadata:
+      name: pwsh
+      labels:
+        app: pwsh
+    spec:
+      nodeSelector:
+        "kubernetes.io/os": linux
+      containers:
+        - name: pwsh
+          image: busybox
+          command:
+            - "/bin/sh"
+            - "-c"
+            - "sleep inf"
+          volumeMounts:
+            - name: smb
+              mountPath: "/mnt/smb"
+              # NOTE: Storage `source/subDir/subPath` will be mounted on container's `mountPath`
+              # subPath: subPath
+              # NOTE: The variable expansion uses round brackets (not curly brackets)
+              # subPathExpr: $(POD_NAME)
+      volumes:
+        - name: smb
+          persistentVolumeClaim:
+            claimName: pvc-smb
+  selector:
+    matchLabels:
+      app: pwsh

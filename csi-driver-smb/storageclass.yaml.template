@@ -1,0 +1,27 @@
+# https://github.com/kubernetes-csi/csi-driver-smb/blob/master/docs/driver-parameters.md
+
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: smb-storage
+provisioner: smb.csi.k8s.io
+
+# parameters & mountOptions are used, when dynamically provisioned
+parameters:
+  # On Windows, "*.default.svc.cluster.local" could not be recognized by csi-proxy
+  # source: "<REDACTED>"
+  subDir: "${pvc.metadata.name}"
+  # if csi.storage.k8s.io/provisioner-secret is provided, will create a sub directory
+  # with PV name under source
+  # csi.storage.k8s.io/provisioner-secret-name: <PLACEHOLDER>
+  # csi.storage.k8s.io/provisioner-secret-namespace: <PLACEHOLDER>
+  # csi.storage.k8s.io/node-stage-secret-name: <PLACEHOLDER>
+  # csi.storage.k8s.io/node-stage-secret-namespace: <PLACEHOLDER>
+mountOptions:
+  - iocharset=utf8
+  - vers=2.0
+  # - <PLACEHOLDER>
+  # - <PLACEHOLDER>
+  # - sec=ntlm  # this will be used vers=1.0
+volumeBindingMode: Immediate
+allowVolumeExpansion: true

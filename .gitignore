@@ -5,3 +5,5 @@ cluster/kind/.logs/
 cluster/k3s/.vagrant/
 cluster/k3s/data/
 cluster/k3s/patches/bin/*
+*/**/charts/
+*gitignored*

@@ -1,0 +1,38 @@
+global:
+  externalHostAddress: mlrun.geniouslab.io
+  registry:
+    url: https://harbor.clownchrys.link
+    secretName: registry-credentials
+
+mlrun:
+  # set the type of filesystem to use: filesystem, s3
+  storage: filesystem
+  secrets:
+    s3:
+      accessKey: ""
+      secretKey: ""
+  s3:
+    region: us-east-1
+    regionEndpoint: s3.us-east-1.amazonaws.com
+    bucket: mlrun
+    encrypt: false
+    secure: true
+  # api:
+  #   extraEnvKeyValue:
+  #     MLRUN_REDIS__URL: <redis-address>
+
+minio:
+  enabled: true
+  service:
+    type: NodePort
+    port: 9000
+    nodePort: 30091
+
+pipelines:
+  enabled: false
+
+kube-prometheus-stack:
+  enabled: false
+
+sparkOperator:
+  enabled: false

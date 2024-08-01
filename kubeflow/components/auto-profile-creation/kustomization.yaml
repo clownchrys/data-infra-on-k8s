@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+patches:
+- target:
+    kind: ConfigMap 
+    name: centraldashboard-parameters
+    namespace: kubeflow
+  patch: |
+    - op: replace
+      path: /data/CD_REGISTRATION_FLOW
+      value: "false"

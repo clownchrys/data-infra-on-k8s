@@ -29,4 +29,4 @@ ${POSTGRESQL}-up:
 ${POSTGRESQL}-down:
 	helm uninstall -n ${NAMESPACE} ${HELM_RELEASE} ${OPT_HELM_UNINSTALL}
 	kubectl delete -n ${NAMESPACE} -f ${PATCH_INITDB} ${OPT_KUBECTL_DELETE}
-	kubectl delete -n ${NAMESPACE} $$(kubectl get pvc -n ${NAMESPACE} -o name) ${OPT_KUBECTL_DELETE}
+	# kubectl delete -n ${NAMESPACE} $$(kubectl get pvc -n ${NAMESPACE} -o name) ${OPT_KUBECTL_DELETE}

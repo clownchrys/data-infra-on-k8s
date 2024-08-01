@@ -26,12 +26,12 @@ ${CILIUM}-init:
 ${CILIUM}-up:
 	helm upgrade -n ${NAMESPACE} ${HELM_RELEASE} ${HELM_CHART} --version ${HELM_CHART_VERSION} -f ${HELM_VALUES} ${OPT_HELM_INSTALL}
 	kubectl apply -f ${PATCH_LB_IP_POOL} ${OPT_KUBECTL_APPLY}
-	# kubectl apply -f ${PATCH_LB_L2_POLICY} ${OPT_KUBECTL_APPLY}
+# kubectl apply -f ${PATCH_LB_L2_POLICY} ${OPT_KUBECTL_APPLY}
 
 ${CILIUM}-down:
 	helm uninstall -n ${NAMESPACE} ${HELM_RELEASE} ${OPT_HELM_UNINSTALL}
 	kubectl delete -f ${PATCH_LB_IP_POOL} ${OPT_KUBECTL_DELETE}
-	# kubectl delete -f ${PATCH_LB_L2_POLICY} ${OPT_KUBECTL_DELETE}
+# kubectl delete -f ${PATCH_LB_L2_POLICY} ${OPT_KUBECTL_DELETE}
 
 ${CILIUM}-hubble-up:
 	helm upgrade -n ${NAMESPACE} ${HELM_RELEASE} ${HELM_CHART} --version ${HELM_CHART_VERSION} \

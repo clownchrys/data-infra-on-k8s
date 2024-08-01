@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgresql-pvc
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+  # storageClassName: local-path  # as defult
+  volumeMode: Filesystem
+  volumeName: postgresql-pv
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: postgresql-pv
+spec:
+  capacity:
+    storage: 10Gi
+  volumeMode: Filesystem
+  accessModes:
+  - ReadWriteOnce
+  persistentVolumeReclaimPolicy: Retain
+  # storageClassName: local-path  # as defult
+  local:
+    path: /data/postgresql
+  nodeAffinity:
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: kubernetes.io/os
+          operator: In
+          values:
+          - linux
+      # - matchFields:
+      #   - key: metadata.name
+      #     operator: NotIn
+      #     values:
+      #     - k3d-server-0

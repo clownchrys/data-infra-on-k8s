@@ -42,12 +42,12 @@ mirrors:
 
 configs:
   "harbor.clownchrys.link":
-    tls:
-      insecure_skip_verify: true
+    tls: {}
+      # insecure_skip_verify: true
       # cert_file: <PATH_TO_FILE>
       # key_file: <PATH_TO_FILE>
       # ca_file: <PATH_TO_FILE>
-    auth:
-      username: harboruser
-      password: Harbor12345
+    auth: {}
+      # username: harboruser
+      # password: Harbor12345
       # auth: <AUTH_TOKEN>

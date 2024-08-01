@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+patches:
+- target:
+    kind: ConfigMap
+    name: jupyter-web-app-parameters
+  patch: |
+    - op: replace
+      path: /data/JWA_APP_SECURE_COOKIES
+      value: "false"
+- target:
+    kind: ConfigMap
+    name: volumes-web-app-parameters
+  patch: |
+    - op: replace
+      path: /data/VWA_APP_SECURE_COOKIES
+      value: "false"
+- path: gateway.kubeflow-gateway.yaml

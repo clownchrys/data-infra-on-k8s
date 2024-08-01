@@ -2,6 +2,10 @@ controller:
   nodeSelector:
     kubernetes.io/os: "linux"
     node-role.kubernetes.io/ingress: "true"
+  # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/
+  config:
+    proxy-buffer-size: "32k"
+    proxy-buffers-number: "8"
   allowSnippetAnnotations: true
   ingressClassResource:
     # -- Name of the ingressClass

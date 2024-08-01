@@ -18,6 +18,34 @@ primary:
     type: ClusterIP
     ports:
       postgresql: 5432
+  persistence:
+    enabled: true
+    existingClaim: "postgresql-pvc"
+    mountPath: /bitnami/postgresql
+    # subPath: ""
+    # storageClass: ""
+    # accessModes:
+    #   - ReadWriteOnce
+    # size: 8Gi
+  # persistentVolumeClaimRetentionPolicy:
+  #   enabled: true
+  #   whenScaled: Retain
+  #   whenDeleted: Retain
+  # initContainers:
+  #   - name: test
+  #     # image: bitnami/postgresql:16.3.0-debian-12-r5
+  #     image: busybox
+  #     command:
+  #     - "/bin/sh"
+  #     - "-c"
+  #     - |
+  #       set -o errexit;
+  #       chown -vR root:1001 /bitnami/postgresql;
+  #       #chmod -v 700 /bitnami/postgresql;
+  #       ls -al /bitnami;
+  #     volumeMounts:
+  #     - mountPath: /bitnami/postgresql
+  #       name: data
   initdb:
     ## @param primary.initdb.scripts Dictionary of initdb scripts
     ## Specify dictionary of scripts to be run at first boot
@@ -40,4 +68,4 @@ primary:
     password: postgres
 
 volumePermissions:
-  enabled: true
+  enabled: false

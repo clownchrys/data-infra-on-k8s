@@ -1,0 +1,74 @@
+# https://github.com/kubernetes-csi/csi-driver-smb
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# https://github.com/kubernetes-csi/csi-driver-smb/blob/master/charts/README.md
+# helm repo add csi-driver-smb https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts
+# helm install csi-driver-smb csi-driver-smb/csi-driver-smb --namespace kube-system --set driver.name="smb2.csi.k8s.io" --set controller.name="csi-smb2-controller" --set rbac.name=smb2 --set serviceAccount.controller=csi-smb2-controller-sa --set serviceAccount.node=csi-smb2-node-sa --set node.name=csi-smb2-node --set node.livenessProbe.healthPort=39643
+helmCharts:
+  - name: csi-driver-smb
+    repo: https://raw.githubusercontent.com/kubernetes-csi/csi-driver-smb/master/charts
+    version: v1.14.0
+    releaseName: csi-driver-smb
+    namespace: kube-system
+    valuesInline:
+      driver:
+        name: smb.csi.k8s.io
+      controller:
+        name: csi-smb-controller 
+      node:
+        name: csi-smb-node
+        livenessProbe.healthPort: 39643
+      serviceAccount:
+        controller: csi-smb-controller-sa
+        node: csi-smb-node-sa
+      rbac:
+        name: smb 
+    includeCRDs: true
+
+resources:
+- storageclass.yaml.template
+
+generatorOptions:
+  disableNameSuffixHash: true
+
+secretGenerator:
+  - behavior: create
+    name: smb-creds
+    namespace: kube-system
+    env: patches/smb-creds.gitignored.env
+
+patches:
+  - target:
+      kind: StorageClass
+      name: smb-storage
+    path: patches/smb-server-patch.gitignored.yaml
+
+replacements:
+- source:
+    kind: Secret
+    name: smb-creds
+    fieldPath: metadata.name
+  targets:
+    - select:
+        kind: StorageClass
+        name: smb-storage
+      fieldPaths:
+        - parameters.[csi.storage.k8s.io/provisioner-secret-name]
+        - parameters.[csi.storage.k8s.io/node-stage-secret-name]
+      options:
+        create: true
+- source:
+    kind: Secret
+    name: smb-creds
+    fieldPath: metadata.namespace
+  targets:
+    - select:
+        kind: StorageClass
+        name: smb-storage
+      fieldPaths:
+        - parameters.[csi.storage.k8s.io/provisioner-secret-namespace]
+        - parameters.[csi.storage.k8s.io/node-stage-secret-namespace]
+      options:
+        create: true

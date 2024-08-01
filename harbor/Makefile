@@ -39,8 +39,5 @@ ${HARBOR}-account:
 # hello-world
 # 2024-05-24T23:44:19.818137930Z stdout F 10.0.1.164 - admin [24/May/2024:23:44:19 +0000] "GET /service/token?account=admin&scope=repository%3Ahello-world%3Apush%2Cpull&service=harbor-registry HTTP/1.1" 200 683 "-" "docker/23.0.5 go/go1.19.8 git-commit/94d3ad6 kernel/5.15.49-linuxkit os/linux arch/amd64 UpstreamClient(Docker-Client/25.0.4-rd \x5C(darwin\x5C))" 391 0.013 [harbor-harbor-core-80] [] 10.0.0.36:8080 683 0.014 200 0f2bf5860f495d6fd1de4b7b066f1b41
 ${HARBOR}-test:
-	docker pull hello-world
-	docker tag hello-world:latest harbor.geniouslab.io/library/hello-world:latest
-	docker login harbor.geniouslab.io --username admin --password admin
-	docker push harbor.geniouslab.io/library/hello-world
-	docker push harbor.geniouslab.io/hello-world
+	docker pull harbor.clownchrys.link/docker.io/hello-world
+	# docker login harbor.geniouslab.io --username admin --password admin

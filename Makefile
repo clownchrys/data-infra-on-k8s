@@ -157,6 +157,7 @@ include elastic/Makefile
 include metrics-server/Makefile
 include rook-ceph/Makefile
 include rancher/Makefile
+include mlrun/Makefile
 
 #############################
 #          ALIASES          #
@@ -183,12 +184,13 @@ core-up: \
 	cert-manager-up \
 	istio-up \
 	reflector-up \
+	keycloak-up \
 	done
 # \
 	metrics-server-up \
 #
 
-storage-up: \
+datastore-up: \
 	postgresql-up \
 	minio-up \
 	redis-up \
@@ -198,7 +200,6 @@ storage-up: \
 #
 
 management-up: \
-	keycloak-up \
 	done
 # \
 #

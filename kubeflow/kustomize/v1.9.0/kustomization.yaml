@@ -1,0 +1,114 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+sortOptions:
+  order: legacy
+  legacySortOptions:
+    orderFirst:
+    - Namespace
+    - ResourceQuota
+    - StorageClass
+    - CustomResourceDefinition
+    - MutatingWebhookConfiguration
+    - ServiceAccount
+    - PodSecurityPolicy
+    - NetworkPolicy
+    - Role
+    - ClusterRole
+    - RoleBinding
+    - ClusterRoleBinding
+    - ConfigMap
+    - Secret
+    - Endpoints
+    - Service
+    - LimitRange
+    - PriorityClass
+    - PersistentVolume
+    - PersistentVolumeClaim
+    - Deployment
+    - StatefulSet
+    - CronJob
+    - PodDisruptionBudget
+    orderLast:
+    - ValidatingWebhookConfiguration
+
+resources:
+# Cert-Manager
+- ../../manifests/common/cert-manager/cert-manager/base
+- ../../manifests/common/cert-manager/kubeflow-issuer/base
+# Istio
+- ../../manifests/common/istio-1-22/istio-crds/base
+- ../../manifests/common/istio-1-22/istio-namespace/base
+- ../../manifests/common/istio-1-22/istio-install/overlays/oauth2-proxy
+# oauth2-proxy (overlays/m2m-self-signed | overlays/m2m)
+- ../../manifests/common/oidc-client/oauth2-proxy/overlays/m2m
+# Dex (NOT USED)
+# - ../../manifests/common/dex/overlays/oauth2-proxy
+# KNative
+- ../../manifests/common/knative/knative-serving/overlays/gateways
+- ../../manifests/common/knative/knative-eventing/base
+- ../../manifests/common/istio-1-22/cluster-local-gateway/base
+# Kubeflow namespace
+- ../../manifests/common/kubeflow-namespace/base
+# NetworkPolicies
+- ../../manifests/common/networkpolicies/base
+# Kubeflow Roles
+- ../../manifests/common/kubeflow-roles/base
+# Kubeflow Istio Resources
+- ../../manifests/common/istio-1-22/kubeflow-istio-resources/base
+
+
+# Kubeflow Pipelines
+- ../../manifests/apps/pipeline/upstream/env/cert-manager/platform-agnostic-multi-user
+# Katib
+- ../../manifests/apps/katib/upstream/installs/katib-with-kubeflow
+# Central Dashboard
+- ../../manifests/apps/centraldashboard/upstream/overlays/oauth2-proxy
+# Admission Webhook
+- ../../manifests/apps/admission-webhook/upstream/overlays/cert-manager
+# Jupyter Web App
+- ../../manifests/apps/jupyter/jupyter-web-app/upstream/overlays/istio
+# Notebook Controller
+- ../../manifests/apps/jupyter/notebook-controller/upstream/overlays/kubeflow
+# Profiles + KFAM
+- ../../manifests/apps/profiles/upstream/overlays/kubeflow
+# PVC Viewer
+- ../../manifests/apps/pvcviewer-controller/upstream/base
+# Volumes Web App
+- ../../manifests/apps/volumes-web-app/upstream/overlays/istio
+# Tensorboards Controller
+- ../../manifests/apps/tensorboard/tensorboard-controller/upstream/overlays/kubeflow
+# Tensorboard Web App
+- ../../manifests/apps/tensorboard/tensorboards-web-app/upstream/overlays/istio
+# Training Operator
+- ../../manifests/apps/training-operator/upstream/overlays/kubeflow
+# User namespace (NOT USED)
+# - ../../manifests/common/user-namespace/base
+
+# KServe
+- ../../manifests/contrib/kserve/kserve
+- ../../manifests/contrib/kserve/models-web-app/overlays/kubeflow
+
+# Pod Security Standards
+# https://kubernetes.io/docs/concepts/security/pod-security-standards/
+# Uncomment to enable baseline level standards
+# - ../../manifests/contrib/security/PSS/static/baseline
+# Uncomment to enable restricted level standards
+# - ../../manifests/contrib/security/PSS/static/restricted
+
+# buildMetadata:
+# - managedByLabel
+# - originAnnotations
+# - transformerAnnotations
+
+components:
+- ../../components/k8s-version-compat
+- ../../components/k8s-ingress
+- ../../components/auto-profile-creation
+- ../../components/centraldashboard-menus
+# - ../../components/no-ssl
+- ../../components/keycloak-oauth2-proxy
+# - ../../components/keycloak-dex
+# - ../../components/mlflow-integration
+- ../../components/model-registry
+# - ../../components/spark-operator

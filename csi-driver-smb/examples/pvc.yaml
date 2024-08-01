@@ -1,0 +1,48 @@
+# 
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: pvc-smb
+spec:
+  # NOTE: to statically provision
+  # volumeName: pv-smb 
+  storageClassName: smb-storage
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+
+# https://kubernetes.io/docs/concepts/storage/volumes/#csi
+# NOTE: to statically provision
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-smb
+spec:
+  storageClassName: smb-storage
+  capacity:
+    storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+  csi:
+    driver: smb.csi.k8s.io
+    # volumeHandle format: {smb-server-address}#{sub-dir-name}#{share-name}
+    # make sure this value is unique for every share in the cluster
+    volumeHandle: clownchrys.iptime.org/K8s#pv-smb#
+    volumeAttributes:
+      source: //clownchrys.iptime.org/K8s
+      subDir: pv-smb
+    nodeStageSecretRef:
+      name: smb-creds
+      namespace: kube-system
+  mountOptions:
+    - uid=1001
+    - gid=1001
+    - dir_mode=0777
+    - file_mode=0777
+    - vers=2.0
+    - iocharset=utf8
+  persistentVolumeReclaimPolicy: Retain

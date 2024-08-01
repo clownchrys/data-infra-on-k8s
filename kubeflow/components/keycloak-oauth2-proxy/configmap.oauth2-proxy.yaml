@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oauth2-proxy
+  namespace: oauth2-proxy
+  labels:
+    app: oauth2-proxy
+data:
+  oauth2_proxy.cfg: |
+    provider = "oidc"
+    oidc_issuer_url = "https://keycloak.clownchrys.link/realms/default"
+    scope = "profile email groups openid"
+    upstreams = "static://200"
+    email_domains = [ "*" ]
+    skip_auth_regex=["/dex/.*"]
+    # ---
+    # OIDC Discovery has to be skipped and login url has to be provided directly
+    # in order to enable relative auth redirect.
+    # Turning On OIDC Discovery would set the auth redirect location as the dex
+    # Issuer URL which is http://dex.auth.svc.cluster.local:5556 in the default,
+    # example installation. This address is usuallynot available through the Web
+    # Browser. If you have a setup where dex has it's url as other than the
+    # in-cluster service, this is optional.
+    skip_oidc_discovery = true
+    login_url = "https://keycloak.clownchrys.link/realms/default/protocol/openid-connect/auth"
+    redeem_url = "https://keycloak.clownchrys.link/realms/default/protocol/openid-connect/token"
+    oidc_jwks_url = "https://keycloak.clownchrys.link/realms/default/protocol/openid-connect/certs"
+    # ---
+    # Go to dex login page directly instead of showing the oauth2-proxy login
+    # page.
+    skip_provider_button = true
+    # ---
+    # Set Authorization Bearer response header. This is needed in order to
+    # forward the Authorization Bearer token to Istio and enable authorization
+    # based on JWT.
+    set_authorization_header = true
+    # ---
+    # set X-Auth-Request-User, X-Auth-Request-Groups, X-Auth-Request-Email and
+    # X-Auth-Request-Preferred-Username. This is optional for Kubeflow but you
+    # may have other services that use standard auth headers.
+    set_xauthrequest = true
+    # ---
+    cookie_name = "oauth2_proxy_kubeflow"
+    # ---
+    # Dex default cookie expiration is 24h. If set to 168h (default oauth2-proxy),
+    # Istio will not be able to use the JWT after 24h but oauth2-proxy will still
+    # consider the cookie valid.
+    # It's possible to configure the JWT Refresh Token to enable longer login
+    # session.
+    cookie_expire = "24h"
+    cookie_refresh = "5m"
+    # ---
+    code_challenge_method = "S256"
+    # ---
+    redirect_url = "https://kubeflow.geniouslab.io/oauth2/callback"
+    relative_redirect_url = true
+    # ---
+    # NOTE: overriden by environment variables
+    # client_id = <REDACTED>
+    # client_secret = <REDACTED>
+    # cookie_secret = <REDACTED>
+    # cookie_secure = false
+    # extra_jwt_issuers = "https://keycloak.clownchrys.link/realms/default"
+    # skip_jwt_bearer_tokens = false
+    # ---
+    profile_url = "https://keycloak.clownchrys.link/realms/default/protocol/openid-connect/userinfo"
+    validate_url = "https://keycloak.clownchrys.link/realms/default/protocol/openid-connect/userinfo"
+    backend_logout_url = "https://keycloak.clownchrys.link/realms/default/protocol/openid-connect/logout?id_token_hint={id_token}" # &post_logout_redirect_uri=http://cyberchef.pippo.it
+    pass_basic_auth = false
+    pass_access_token = true
+    pass_authorization_header = true
+    pass_host_header = true
+    pass_user_headers = true
+    skip_auth_preflight = true
+    request_logging = true
+    auth_logging = true
+    standard_logging = true
+    silence_ping_logging = true
+    cookie_domains = ["kubeflow.geniouslab.io"]
+    whitelist_domains = ["*"]
+
+
+binaryData: {}

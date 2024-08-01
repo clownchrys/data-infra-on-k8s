@@ -1,0 +1,12 @@
+apiVersion: kustomize.config.k8s.io/v1alpha1
+kind: Component
+
+patches:
+- target:
+    group: autoscaling
+    version: v2beta2
+    kind: HorizontalPodAutoscaler
+  patch: |
+    - op: replace
+      path: /apiVersion
+      value: autoscaling/v2
