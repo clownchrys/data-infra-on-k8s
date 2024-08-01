@@ -48,7 +48,7 @@ data:
     # It's possible to configure the JWT Refresh Token to enable longer login
     # session.
     cookie_expire = "24h"
-    cookie_refresh = "5m"
+    cookie_refresh = "29m" # keycloak access_token lifespan is 30m
     # ---
     code_challenge_method = "S256"
     # ---

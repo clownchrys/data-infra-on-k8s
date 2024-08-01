@@ -11,6 +11,7 @@ secretGenerator:
   behavior: merge
 
 patches:
+- path: configmap.istio.yaml
 - path: configmap.oauth2-proxy.yaml
 - path: configmap.oauth2-proxy-params.yaml
 # - path: virtualservice.centraldashboard.yaml
