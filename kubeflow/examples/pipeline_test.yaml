@@ -1,0 +1,192 @@
+# PIPELINE DEFINITION
+# Name: add-example
+# Inputs:
+#    value_1: int
+#    value_2: int
+components:
+  comp-add:
+    executorLabel: exec-add
+    inputDefinitions:
+      parameters:
+        value_1:
+          parameterType: NUMBER_INTEGER
+        value_2:
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: NUMBER_INTEGER
+  comp-multiply:
+    executorLabel: exec-multiply
+    inputDefinitions:
+      parameters:
+        value_1:
+          parameterType: NUMBER_INTEGER
+        value_2:
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: NUMBER_INTEGER
+  comp-subtract:
+    executorLabel: exec-subtract
+    inputDefinitions:
+      parameters:
+        value_1:
+          parameterType: NUMBER_INTEGER
+        value_2:
+          parameterType: NUMBER_INTEGER
+    outputDefinitions:
+      parameters:
+        Output:
+          parameterType: NUMBER_INTEGER
+deploymentSpec:
+  executors:
+    exec-add:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - add
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef add(value_1: int, value_2: int) -> int:\n    \"\"\"\n    \uB354\
+          \uD558\uAE30\n    \"\"\"\n    ret = value_1 + value_2\n    return ret\n\n"
+        image: python:3.7
+    exec-multiply:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - multiply
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef multiply(value_1: int, value_2: int) -> int:\n    \"\"\"\n  \
+          \  \uACF1\uD558\uAE30\n    \"\"\"\n    ret = value_1 * value_2\n    return\
+          \ ret\n\n"
+        image: python:3.7
+    exec-subtract:
+      container:
+        args:
+        - --executor_input
+        - '{{$}}'
+        - --function_to_execute
+        - subtract
+        command:
+        - sh
+        - -c
+        - "\nif ! [ -x \"$(command -v pip)\" ]; then\n    python3 -m ensurepip ||\
+          \ python3 -m ensurepip --user || apt-get install python3-pip\nfi\n\nPIP_DISABLE_PIP_VERSION_CHECK=1\
+          \ python3 -m pip install --quiet --no-warn-script-location 'kfp==2.7.0'\
+          \ '--no-deps' 'typing-extensions>=3.7.4,<5; python_version<\"3.9\"' && \"\
+          $0\" \"$@\"\n"
+        - sh
+        - -ec
+        - 'program_path=$(mktemp -d)
+
+
+          printf "%s" "$0" > "$program_path/ephemeral_component.py"
+
+          _KFP_RUNTIME=true python3 -m kfp.dsl.executor_main                         --component_module_path                         "$program_path/ephemeral_component.py"                         "$@"
+
+          '
+        - "\nimport kfp\nfrom kfp import dsl\nfrom kfp.dsl import *\nfrom typing import\
+          \ *\n\ndef subtract(value_1: int, value_2: int) -> int:\n    \"\"\"\n  \
+          \  \uBE7C\uAE30\n    \"\"\"\n    ret = value_1 - value_2\n    return ret\n\
+          \n"
+        image: python:3.7
+pipelineInfo:
+  name: add-example
+root:
+  dag:
+    tasks:
+      add:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-add
+        inputs:
+          parameters:
+            value_1:
+              componentInputParameter: value_1
+            value_2:
+              componentInputParameter: value_2
+        taskInfo:
+          name: add
+      multiply:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-multiply
+        dependentTasks:
+        - add
+        - subtract
+        inputs:
+          parameters:
+            value_1:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: add
+            value_2:
+              taskOutputParameter:
+                outputParameterKey: Output
+                producerTask: subtract
+        taskInfo:
+          name: multiply
+      subtract:
+        cachingOptions:
+          enableCache: true
+        componentRef:
+          name: comp-subtract
+        inputs:
+          parameters:
+            value_1:
+              componentInputParameter: value_1
+            value_2:
+              componentInputParameter: value_2
+        taskInfo:
+          name: subtract
+  inputDefinitions:
+    parameters:
+      value_1:
+        parameterType: NUMBER_INTEGER
+      value_2:
+        parameterType: NUMBER_INTEGER
+schemaVersion: 2.1.0
+sdkVersion: kfp-2.7.0

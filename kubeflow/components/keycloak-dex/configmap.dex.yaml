@@ -9,7 +9,7 @@ data:
   # https://dexidp.io/docs/connectors
   # NOTE: MUST HAVE ACTUAL DOMAIN NAME FOR DEX
   config.yaml: |
-    issuer: http://kubeflow.clownchrys.link/dex
+    issuer: http://dex.auth.svc.cluster.local:5556/dex
     storage:
       type: kubernetes
       config:
@@ -39,6 +39,6 @@ data:
       name: Keycloak
       config:
         issuer: https://keycloak.clownchrys.link/realms/default
-        clientID: <REDACTED>
-        clientSecret: <REDACTED>
-        redirectURI: http://dex.clownchrys.link/dex/callback
+        clientID: kubeflow-oidc-authservice
+        clientSecret: SM7BlsEB0DZW6noQsgcZRw==
+        redirectURI: http://kubeflow.geniouslab.io/dex/callback

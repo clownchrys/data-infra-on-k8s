@@ -41,7 +41,7 @@ resources:
 - ../../manifests/common/istio-1-22/istio-namespace/base
 - ../../manifests/common/istio-1-22/istio-install/overlays/oauth2-proxy
 # oauth2-proxy (overlays/m2m-self-signed | overlays/m2m)
-- ../../manifests/common/oidc-client/oauth2-proxy/overlays/m2m
+- ../../manifests/common/oidc-client/oauth2-proxy/overlays/m2m-self-signed
 # Dex (NOT USED)
 # - ../../manifests/common/dex/overlays/oauth2-proxy
 # KNative
@@ -110,5 +110,5 @@ components:
 - ../../components/keycloak-oauth2-proxy
 # - ../../components/keycloak-dex
 # - ../../components/mlflow-integration
-- ../../components/model-registry
+# - ../../components/model-registry
 # - ../../components/spark-operator

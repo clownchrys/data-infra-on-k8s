@@ -35,6 +35,7 @@ ${KUBEFLOW_PREFIX}-tmp:
 	$(MAKE) ${KUBEFLOW_PREFIX}-create-profile ACTION=apply PROFILE_NAME=kubeflow-test-space RAW_OWNER_EMAIL=admin@clownchrys.link
 
 ${KUBEFLOW_PREFIX}-up:
+	cd ${KUBEFLOW_MANIFEST_DIR} && git checkout tags/$$(basename ${KUSTOMIZATION})
 	kustomize build ${KUSTOMIZATION} >> /dev/null
 	while ! kustomize build ${KUSTOMIZATION} | kubectl apply ${OPT_KUBECTL_APPLY} -f -; do echo "Retrying to apply resources"; sleep 10; done	
 	$(MAKE) ${KUBEFLOW_PREFIX}-create-profile ACTION=apply PROFILE_NAME=kubeflow-admin-space RAW_OWNER_EMAIL=admin@clownchrys.link

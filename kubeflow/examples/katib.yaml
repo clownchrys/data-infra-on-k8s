@@ -1,0 +1,71 @@
+apiVersion: kubeflow.org/v1beta1
+kind: Experiment
+metadata:
+  name: demo
+  namespace: kubeflow-admin-space
+spec:
+  algorithm:
+    algorithmName: random
+  maxFailedTrialCount: 1
+  maxTrialCount: 1
+  parallelTrialCount: 1
+  metricsCollectorSpec:
+    collector:
+      kind: StdOut
+  objective:
+    additionalMetricNames:
+    - Train-accuracy
+    goal: 0.99
+    metricStrategies:
+    - name: Validation-accuracy
+      value: max
+    - name: Train-accuracy
+      value: max
+    objectiveMetricName: Validation-accuracy
+    type: maximize
+  parameters:
+  - feasibleSpace:
+      max: "0.03"
+      min: "0.01"
+    name: lr
+    parameterType: double
+  - feasibleSpace:
+      max: "5"
+      min: "2"
+    name: num-layers
+    parameterType: int
+  - feasibleSpace:
+      list:
+      - sgd
+      - adam
+      - ftrl
+    name: optimizer
+    parameterType: categorical
+  resumePolicy: Never
+  trialTemplate:
+    failureCondition: status.conditions.#(type=="Failed")#|#(status=="True")#
+    primaryContainerName: training-container
+    successCondition: status.conditions.#(type=="Complete")#|#(status=="True")#
+    trialParameters:
+    - description: Learning rate for the training model
+      name: learningRate
+      reference: lr
+    trialSpec:
+      apiVersion: batch/v1
+      kind: Job
+      spec:
+        template:
+          metadata:
+            annotations:
+              sidecar.istio.io/inject: "false"
+          spec:
+            containers:
+            - command:
+              - python3
+              - /opt/pytorch-mnist/mnist.py
+              - --epochs=1
+              - --batch-size=16
+              - --lr=${trialParameters.learningRate}
+              image: docker.io/kubeflowkatib/pytorch-mnist-cpu:latest
+              name: training-container
+            restartPolicy: Never
