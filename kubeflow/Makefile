@@ -32,7 +32,8 @@ ${KUBEFLOW_PREFIX}-init:
 	@echo "[INFO] Add lines in ${KUSTOMIZATION}/kustomization.yaml, if you need..."
 
 ${KUBEFLOW_PREFIX}-tmp:
-	$(MAKE) ${KUBEFLOW_PREFIX}-create-profile ACTION=apply PROFILE_NAME=kubeflow-test-space RAW_OWNER_EMAIL=admin@clownchrys.link
+	# $(MAKE) ${KUBEFLOW_PREFIX}-create-profile ACTION=apply PROFILE_NAME=kubeflow-test-space RAW_OWNER_EMAIL=admin@clownchrys.link
+	# $(MAKE) ${KUBEFLOW_PREFIX}-join-profile ACTION=apply PROFILE_NAME=kubeflow-admin-space RAW_USER_EMAIL=user@example.com SAFE_USER_EMAIL=user-example-com USER_ROLE=edit
 
 ${KUBEFLOW_PREFIX}-up:
 	cd ${KUBEFLOW_MANIFEST_DIR} && git checkout tags/$$(basename ${KUSTOMIZATION})

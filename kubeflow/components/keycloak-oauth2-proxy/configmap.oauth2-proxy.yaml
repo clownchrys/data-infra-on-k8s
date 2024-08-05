@@ -48,7 +48,7 @@ data:
     # It's possible to configure the JWT Refresh Token to enable longer login
     # session.
     cookie_expire = "24h"
-    cookie_refresh = "29m" # keycloak access_token lifespan is 30m
+    cookie_refresh = "25m" # token lifespan - 5m (access_token lifespan is 30m)
     # ---
     code_challenge_method = "S256"
     # ---
@@ -56,12 +56,12 @@ data:
     relative_redirect_url = true
     # ---
     # NOTE: overriden by environment variables
-    # client_id = <REDACTED>
-    # client_secret = <REDACTED>
-    # cookie_secret = <REDACTED>
-    # cookie_secure = false
-    # extra_jwt_issuers = "https://keycloak.clownchrys.link/realms/default"
-    # skip_jwt_bearer_tokens = false
+    # client_id = <string>
+    # client_secret = <string>
+    # cookie_secret = <sting>
+    # cookie_secure = <boolean>
+    # extra_jwt_issuers = <string>
+    # skip_jwt_bearer_tokens = <boolean>
     # ---
     profile_url = "https://keycloak.clownchrys.link/realms/default/protocol/openid-connect/userinfo"
     validate_url = "https://keycloak.clownchrys.link/realms/default/protocol/openid-connect/userinfo"

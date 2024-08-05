@@ -8,7 +8,7 @@ metadata:
 data:
   oauth2_proxy.cfg: |
     provider = "oidc"
-    oidc_issuer_url = "http://kubeflow.geniouslab.io/dex"
+    oidc_issuer_url = "https://kubeflow.geniouslab.io/dex"
     # oidc_issuer_url = "http://dex.auth.svc.cluster.local:5556/dex"
     scope = "profile email groups openid"
     upstreams = "static://200"
@@ -23,7 +23,7 @@ data:
     # Browser. If you have a setup where dex has it's url as other than the
     # in-cluster service, this is optional.
     skip_oidc_discovery = true
-    login_url = "http://kubeflow.geniouslab.io/dex/auth"
+    login_url = "https://kubeflow.geniouslab.io/dex/auth"
     redeem_url = "http://dex.auth.svc.cluster.local:5556/dex/token"
     oidc_jwks_url = "http://dex.auth.svc.cluster.local:5556/dex/keys"
     # ---
@@ -53,7 +53,7 @@ data:
     # ---
     code_challenge_method = "S256"
     # ---
-    redirect_url = "http://kubeflow.geniouslab.io/oauth2/callback"
+    redirect_url = "https://kubeflow.geniouslab.io/oauth2/callback"
     relative_redirect_url = true
 
 binaryData: {}

@@ -6,8 +6,7 @@ metadata:
 data:
   # https://github.com/dexidp/dex/blob/master/examples/config-ad-kubelogin.yaml
   # https://github.com/dexidp/dex/blob/master/examples/config-dev.yaml
-  # https://dexidp.io/docs/connectors
-  # NOTE: MUST HAVE ACTUAL DOMAIN NAME FOR DEX
+  # https://dexidp.io/docs/connectors/oidc
   config.yaml: |
     issuer: http://dex.auth.svc.cluster.local:5556/dex
     storage:
@@ -39,6 +38,34 @@ data:
       name: Keycloak
       config:
         issuer: https://keycloak.clownchrys.link/realms/default
-        clientID: kubeflow-oidc-authservice
-        clientSecret: SM7BlsEB0DZW6noQsgcZRw==
-        redirectURI: http://kubeflow.geniouslab.io/dex/callback
+        clientID: <REDACTED>
+        clientSecret: <REDACTED>
+        redirectURI: https://kubeflow.geniouslab.io/dex/callback
+        basicAuthUnsupported: true
+        scopes:
+          - profile
+          - email
+          - groups
+          - openid
+        insecureSkipEmailVerified: true
+        insecureEnableGroups: true
+        getUserInfo: true
+        # userIDKey: sub
+        # userNameKey: name
+        # arcValues:
+        #   - <value>
+        promptType: consent
+        # claimMapping:
+        #   preferred_username: preferred_username
+        #   email: mail
+        #   groups: groups
+        providerDiscoveryOverrides:
+          # tokenURL provides a way to user overwrite the token URL
+          # from the .well-known/openid-configuration 'token_endpoint'.
+          # tokenURL: ""
+          #
+          # authURL provides a way to user overwrite the authorization URL
+          # from the .well-known/openid-configuration 'authorization_endpoint'.   
+          # authURL: ""
+
+
