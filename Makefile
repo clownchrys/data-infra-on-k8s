@@ -1,5 +1,5 @@
 SHELL := /bin/zsh
-ROOT_DIR := /Users/imgeunchan/tmp/data-infra-on-k8s
+ROOT_DIR := /Users/chan/Workspace/data-infra-on-k8s
 
 ############################
 #          COMMON          #

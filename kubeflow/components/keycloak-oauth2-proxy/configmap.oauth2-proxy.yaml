@@ -12,7 +12,7 @@ data:
     scope = "profile email groups openid"
     upstreams = "static://200"
     email_domains = [ "*" ]
-    skip_auth_regex=["/dex/.*"]
+    # skip_auth_regex=["/dex/.*"]
     # ---
     # OIDC Discovery has to be skipped and login url has to be provided directly
     # in order to enable relative auth redirect.

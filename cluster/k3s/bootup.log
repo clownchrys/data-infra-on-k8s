@@ -1,0 +1,324 @@
+cd cluster/k3s && vagrant up
+Bringing machine 'k3s-master-1' up with 'virtualbox' provider...
+Bringing machine 'k3s-worker-1' up with 'virtualbox' provider...
+Bringing machine 'k3s-worker-2' up with 'virtualbox' provider...
+Bringing machine 'k3s-worker-3' up with 'virtualbox' provider...
+==> k3s-master-1: Importing base box 'ubuntu/jammy64'...
+==> k3s-master-1: Matching MAC address for NAT networking...
+==> k3s-master-1: Setting the name of the VM: k3s-master-1
+Vagrant is currently configured to create VirtualBox synced folders with
+the `SharedFoldersEnableSymlinksCreate` option enabled. If the Vagrant
+guest is not trusted, you may want to disable this option. For more
+information on this option, please refer to the VirtualBox manual:
+
+  https://www.virtualbox.org/manual/ch04.html#sharedfolders
+
+This option can be disabled globally with an environment variable:
+
+  VAGRANT_DISABLE_VBOXSYMLINKCREATE=1
+
+or on a per folder basis within the Vagrantfile:
+
+  config.vm.synced_folder '/host/path', '/guest/path', SharedFoldersEnableSymlinksCreate: false
+==> k3s-master-1: Clearing any previously set network interfaces...
+==> k3s-master-1: Preparing network interfaces based on configuration...
+    k3s-master-1: Adapter 1: nat
+    k3s-master-1: Adapter 2: hostonly
+==> k3s-master-1: Forwarding ports...
+    k3s-master-1: 22 (guest) => 2222 (host) (adapter 1)
+==> k3s-master-1: Configuring storage mediums...
+    k3s-master-1: Disk 'disk0' not found in guest. Creating and attaching disk to guest...
+==> k3s-master-1: Running 'pre-boot' VM customizations...
+==> k3s-master-1: Booting VM...
+==> k3s-master-1: Waiting for machine to boot. This may take a few minutes...
+    k3s-master-1: SSH address: 127.0.0.1:2222
+    k3s-master-1: SSH username: vagrant
+    k3s-master-1: SSH auth method: private key
+    k3s-master-1: Warning: Connection reset. Retrying...
+    k3s-master-1:
+    k3s-master-1: Vagrant insecure key detected. Vagrant will automatically replace
+    k3s-master-1: this with a newly generated keypair for better security.
+    k3s-master-1:
+    k3s-master-1: Inserting generated public key within guest...
+    k3s-master-1: Removing insecure key from the guest if it's present...
+    k3s-master-1: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> k3s-master-1: Machine booted and ready!
+==> k3s-master-1: Checking for guest additions in VM...
+    k3s-master-1: The guest additions on this VM do not match the installed version of
+    k3s-master-1: VirtualBox! In most cases this is fine, but in rare cases it can
+    k3s-master-1: prevent things such as shared folders from working properly. If you see
+    k3s-master-1: shared folder errors, please make sure the guest additions within the
+    k3s-master-1: virtual machine match the version of VirtualBox you have installed on
+    k3s-master-1: your host and reload your VM.
+    k3s-master-1:
+    k3s-master-1: Guest Additions Version: 6.0.0 r127566
+    k3s-master-1: VirtualBox Version: 7.0
+==> k3s-master-1: Setting hostname...
+==> k3s-master-1: Configuring and enabling network interfaces...
+==> k3s-master-1: Mounting shared folders...
+    k3s-master-1: /data => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s/data
+    k3s-master-1: /vagrant => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s
+    k3s-master-1: /opt/k3s => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s/patches
+==> k3s-master-1: Detected mount owner ID within mount options. (uid: 1000 guestpath: /vagrant)
+==> k3s-master-1: Detected mount group ID within mount options. (gid: 1000 guestpath: /vagrant)
+==> k3s-master-1: Detected mount owner ID within mount options. (uid: 1000 guestpath: /opt/k3s)
+==> k3s-master-1: Detected mount group ID within mount options. (gid: 1000 guestpath: /opt/k3s)
+==> k3s-master-1: Running provisioner: configure_rootpass (shell)...
+    k3s-master-1: Running: script: configure_rootpass
+==> k3s-master-1: Running provisioner: install_k3s_manifest (shell)...
+    k3s-master-1: Running: script: install_k3s_manifest
+    k3s-master-1: '/opt/k3s/manifests/kube-admin.yaml' -> '/var/lib/rancher/k3s/server/manifests/kube-admin.yaml'
+    k3s-master-1: '/opt/k3s/manifests/storage-class.yaml.skip' -> '/var/lib/rancher/k3s/server/manifests/storage-class.yaml.skip'
+    k3s-master-1: '/opt/k3s/manifests/storage-provisioner.yaml.skip' -> '/var/lib/rancher/k3s/server/manifests/storage-provisioner.yaml.skip'
+==> k3s-master-1: Running provisioner: hosts...
+==> k3s-master-1: Running provisioner: start_k3s_server (shell)...
+    k3s-master-1: Running: script: start_k3s_server
+    k3s-master-1: [INFO]  Skipping k3s download and verify
+    k3s-master-1: [INFO]  Skipping installation of SELinux RPM
+    k3s-master-1: [INFO]  Creating /usr/local/bin/kubectl symlink to k3s
+    k3s-master-1: [INFO]  Creating /usr/local/bin/crictl symlink to k3s
+    k3s-master-1: [INFO]  Creating /usr/local/bin/ctr symlink to k3s
+    k3s-master-1: [INFO]  Creating killall script /usr/local/bin/k3s-killall.sh
+    k3s-master-1: [INFO]  Creating uninstall script /usr/local/bin/k3s-uninstall.sh
+    k3s-master-1: [INFO]  env: Creating environment file /etc/systemd/system/k3s.service.env
+    k3s-master-1: [INFO]  systemd: Creating service file /etc/systemd/system/k3s.service
+    k3s-master-1: [INFO]  systemd: Enabling k3s unit
+    k3s-master-1: Created symlink /etc/systemd/system/multi-user.target.wants/k3s.service → /etc/systemd/system/k3s.service.
+    k3s-master-1: [INFO]  systemd: Starting k3s
+==> k3s-master-1: Running provisioner: post_init (shell)...
+    k3s-master-1: Running: script: post_init
+    k3s-master-1: K10d5ae50dafa286a14ec41f0e90bce9b46c40cfc5329b45e064edacb705b25967f::server:bf2ce3d64f8b5e5ea9c94821e32c8198
+    k3s-master-1: 192.168.20.101
+==> k3s-worker-1: Importing base box 'ubuntu/jammy64'...
+==> k3s-worker-1: Matching MAC address for NAT networking...
+==> k3s-worker-1: Setting the name of the VM: k3s-worker-1
+==> k3s-worker-1: Fixed port collision for 22 => 2222. Now on port 2200.
+==> k3s-worker-1: Clearing any previously set network interfaces...
+==> k3s-worker-1: Preparing network interfaces based on configuration...
+    k3s-worker-1: Adapter 1: nat
+    k3s-worker-1: Adapter 2: hostonly
+==> k3s-worker-1: You are trying to forward to privileged ports (ports <= 1024). Most
+==> k3s-worker-1: operating systems restrict this to only privileged process (typically
+==> k3s-worker-1: processes running as an administrative user). This is a warning in case
+==> k3s-worker-1: the port forwarding doesn't work. If any problems occur, please try a
+==> k3s-worker-1: port higher than 1024.
+==> k3s-worker-1: Forwarding ports...
+    k3s-worker-1: 30080 (guest) => 80 (host) (adapter 1)
+    k3s-worker-1: 30443 (guest) => 443 (host) (adapter 1)
+    k3s-worker-1: 22 (guest) => 2200 (host) (adapter 1)
+==> k3s-worker-1: Configuring storage mediums...
+    k3s-worker-1: Disk 'disk0' not found in guest. Creating and attaching disk to guest...
+==> k3s-worker-1: Running 'pre-boot' VM customizations...
+==> k3s-worker-1: Booting VM...
+==> k3s-worker-1: Waiting for machine to boot. This may take a few minutes...
+    k3s-worker-1: SSH address: 127.0.0.1:2200
+    k3s-worker-1: SSH username: vagrant
+    k3s-worker-1: SSH auth method: private key
+    k3s-worker-1: Warning: Connection reset. Retrying...
+    k3s-worker-1:
+    k3s-worker-1: Vagrant insecure key detected. Vagrant will automatically replace
+    k3s-worker-1: this with a newly generated keypair for better security.
+    k3s-worker-1:
+    k3s-worker-1: Inserting generated public key within guest...
+    k3s-worker-1: Removing insecure key from the guest if it's present...
+    k3s-worker-1: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> k3s-worker-1: Machine booted and ready!
+==> k3s-worker-1: Checking for guest additions in VM...
+    k3s-worker-1: The guest additions on this VM do not match the installed version of
+    k3s-worker-1: VirtualBox! In most cases this is fine, but in rare cases it can
+    k3s-worker-1: prevent things such as shared folders from working properly. If you see
+    k3s-worker-1: shared folder errors, please make sure the guest additions within the
+    k3s-worker-1: virtual machine match the version of VirtualBox you have installed on
+    k3s-worker-1: your host and reload your VM.
+    k3s-worker-1:
+    k3s-worker-1: Guest Additions Version: 6.0.0 r127566
+    k3s-worker-1: VirtualBox Version: 7.0
+==> k3s-worker-1: Setting hostname...
+==> k3s-worker-1: Configuring and enabling network interfaces...
+==> k3s-worker-1: Mounting shared folders...
+    k3s-worker-1: /data => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s/data
+    k3s-worker-1: /vagrant => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s
+==> k3s-worker-1: Detected mount owner ID within mount options. (uid: 1000 guestpath: /vagrant)
+==> k3s-worker-1: Detected mount group ID within mount options. (gid: 1000 guestpath: /vagrant)
+    k3s-worker-1: /opt/k3s => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s/patches
+==> k3s-worker-1: Detected mount owner ID within mount options. (uid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-1: Detected mount group ID within mount options. (gid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-1: Detected mount owner ID within mount options. (uid: 1000 guestpath: /vagrant)
+==> k3s-worker-1: Detected mount group ID within mount options. (gid: 1000 guestpath: /vagrant)
+==> k3s-worker-1: Detected mount owner ID within mount options. (uid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-1: Detected mount group ID within mount options. (gid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-1: Running provisioner: configure_rootpass (shell)...
+    k3s-worker-1: Running: script: configure_rootpass
+==> k3s-worker-1: Running provisioner: install_k3s_manifest (shell)...
+    k3s-worker-1: Running: script: install_k3s_manifest
+    k3s-worker-1: '/opt/k3s/manifests/kube-admin.yaml' -> '/var/lib/rancher/k3s/server/manifests/kube-admin.yaml'
+    k3s-worker-1: '/opt/k3s/manifests/storage-class.yaml.skip' -> '/var/lib/rancher/k3s/server/manifests/storage-class.yaml.skip'
+    k3s-worker-1: '/opt/k3s/manifests/storage-provisioner.yaml.skip' -> '/var/lib/rancher/k3s/server/manifests/storage-provisioner.yaml.skip'
+==> k3s-worker-1: Running provisioner: hosts...
+==> k3s-master-1: Updating hosts on: k3s-master-1
+==> k3s-worker-1: Running provisioner: start_k3s_agent (shell)...
+    k3s-worker-1: Running: script: start_k3s_agent
+    k3s-worker-1: [INFO]  Skipping k3s download and verify
+    k3s-worker-1: [INFO]  Skipping installation of SELinux RPM
+    k3s-worker-1: [INFO]  Creating /usr/local/bin/kubectl symlink to k3s
+    k3s-worker-1: [INFO]  Creating /usr/local/bin/crictl symlink to k3s
+    k3s-worker-1: [INFO]  Creating /usr/local/bin/ctr symlink to k3s
+    k3s-worker-1: [INFO]  Creating killall script /usr/local/bin/k3s-killall.sh
+    k3s-worker-1: [INFO]  Creating uninstall script /usr/local/bin/k3s-agent-uninstall.sh
+    k3s-worker-1: [INFO]  env: Creating environment file /etc/systemd/system/k3s-agent.service.env
+    k3s-worker-1: [INFO]  systemd: Creating service file /etc/systemd/system/k3s-agent.service
+    k3s-worker-1: [INFO]  systemd: Enabling k3s-agent unit
+    k3s-worker-1: Created symlink /etc/systemd/system/multi-user.target.wants/k3s-agent.service → /etc/systemd/system/k3s-agent.service.
+    k3s-worker-1: [INFO]  systemd: Starting k3s-agent
+==> k3s-worker-2: Importing base box 'ubuntu/jammy64'...
+==> k3s-worker-2: Matching MAC address for NAT networking...
+==> k3s-worker-2: Setting the name of the VM: k3s-worker-2
+==> k3s-worker-2: Fixed port collision for 22 => 2222. Now on port 2201.
+==> k3s-worker-2: Clearing any previously set network interfaces...
+==> k3s-worker-2: Preparing network interfaces based on configuration...
+    k3s-worker-2: Adapter 1: nat
+    k3s-worker-2: Adapter 2: hostonly
+==> k3s-worker-2: Forwarding ports...
+    k3s-worker-2: 22 (guest) => 2201 (host) (adapter 1)
+==> k3s-worker-2: Configuring storage mediums...
+    k3s-worker-2: Disk 'disk0' not found in guest. Creating and attaching disk to guest...
+==> k3s-worker-2: Running 'pre-boot' VM customizations...
+==> k3s-worker-2: Booting VM...
+==> k3s-worker-2: Waiting for machine to boot. This may take a few minutes...
+    k3s-worker-2: SSH address: 127.0.0.1:2201
+    k3s-worker-2: SSH username: vagrant
+    k3s-worker-2: SSH auth method: private key
+    k3s-worker-2: Warning: Connection reset. Retrying...
+    k3s-worker-2:
+    k3s-worker-2: Vagrant insecure key detected. Vagrant will automatically replace
+    k3s-worker-2: this with a newly generated keypair for better security.
+    k3s-worker-2:
+    k3s-worker-2: Inserting generated public key within guest...
+    k3s-worker-2: Removing insecure key from the guest if it's present...
+    k3s-worker-2: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> k3s-worker-2: Machine booted and ready!
+==> k3s-worker-2: Checking for guest additions in VM...
+    k3s-worker-2: The guest additions on this VM do not match the installed version of
+    k3s-worker-2: VirtualBox! In most cases this is fine, but in rare cases it can
+    k3s-worker-2: prevent things such as shared folders from working properly. If you see
+    k3s-worker-2: shared folder errors, please make sure the guest additions within the
+    k3s-worker-2: virtual machine match the version of VirtualBox you have installed on
+    k3s-worker-2: your host and reload your VM.
+    k3s-worker-2:
+    k3s-worker-2: Guest Additions Version: 6.0.0 r127566
+    k3s-worker-2: VirtualBox Version: 7.0
+==> k3s-worker-2: Setting hostname...
+==> k3s-worker-2: Configuring and enabling network interfaces...
+==> k3s-worker-2: Mounting shared folders...
+    k3s-worker-2: /data => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s/data
+    k3s-worker-2: /vagrant => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s
+==> k3s-worker-2: Detected mount owner ID within mount options. (uid: 1000 guestpath: /vagrant)
+==> k3s-worker-2: Detected mount group ID within mount options. (gid: 1000 guestpath: /vagrant)
+    k3s-worker-2: /opt/k3s => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s/patches
+==> k3s-worker-2: Detected mount owner ID within mount options. (uid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-2: Detected mount group ID within mount options. (gid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-2: Detected mount owner ID within mount options. (uid: 1000 guestpath: /vagrant)
+==> k3s-worker-2: Detected mount group ID within mount options. (gid: 1000 guestpath: /vagrant)
+==> k3s-worker-2: Detected mount owner ID within mount options. (uid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-2: Detected mount group ID within mount options. (gid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-2: Running provisioner: configure_rootpass (shell)...
+    k3s-worker-2: Running: script: configure_rootpass
+==> k3s-worker-2: Running provisioner: install_k3s_manifest (shell)...
+    k3s-worker-2: Running: script: install_k3s_manifest
+    k3s-worker-2: '/opt/k3s/manifests/kube-admin.yaml' -> '/var/lib/rancher/k3s/server/manifests/kube-admin.yaml'
+    k3s-worker-2: '/opt/k3s/manifests/storage-class.yaml.skip' -> '/var/lib/rancher/k3s/server/manifests/storage-class.yaml.skip'
+    k3s-worker-2: '/opt/k3s/manifests/storage-provisioner.yaml.skip' -> '/var/lib/rancher/k3s/server/manifests/storage-provisioner.yaml.skip'
+==> k3s-worker-2: Running provisioner: hosts...
+==> k3s-worker-1: Updating hosts on: k3s-worker-1
+==> k3s-master-1: Updating hosts on: k3s-master-1
+==> k3s-worker-2: Running provisioner: start_k3s_agent (shell)...
+    k3s-worker-2: Running: script: start_k3s_agent
+    k3s-worker-2: [INFO]  Skipping k3s download and verify
+    k3s-worker-2: [INFO]  Skipping installation of SELinux RPM
+    k3s-worker-2: [INFO]  Creating /usr/local/bin/kubectl symlink to k3s
+    k3s-worker-2: [INFO]  Creating /usr/local/bin/crictl symlink to k3s
+    k3s-worker-2: [INFO]  Creating /usr/local/bin/ctr symlink to k3s
+    k3s-worker-2: [INFO]  Creating killall script /usr/local/bin/k3s-killall.sh
+    k3s-worker-2: [INFO]  Creating uninstall script /usr/local/bin/k3s-agent-uninstall.sh
+    k3s-worker-2: [INFO]  env: Creating environment file /etc/systemd/system/k3s-agent.service.env
+    k3s-worker-2: [INFO]  systemd: Creating service file /etc/systemd/system/k3s-agent.service
+    k3s-worker-2: [INFO]  systemd: Enabling k3s-agent unit
+    k3s-worker-2: Created symlink /etc/systemd/system/multi-user.target.wants/k3s-agent.service → /etc/systemd/system/k3s-agent.service.
+    k3s-worker-2: [INFO]  systemd: Starting k3s-agent
+==> k3s-worker-3: Importing base box 'ubuntu/jammy64'...
+==> k3s-worker-3: Matching MAC address for NAT networking...
+==> k3s-worker-3: Setting the name of the VM: k3s-worker-3
+==> k3s-worker-3: Fixed port collision for 22 => 2222. Now on port 2203.
+==> k3s-worker-3: Clearing any previously set network interfaces...
+==> k3s-worker-3: Preparing network interfaces based on configuration...
+    k3s-worker-3: Adapter 1: nat
+    k3s-worker-3: Adapter 2: hostonly
+==> k3s-worker-3: Forwarding ports...
+    k3s-worker-3: 22 (guest) => 2203 (host) (adapter 1)
+==> k3s-worker-3: Configuring storage mediums...
+    k3s-worker-3: Disk 'disk0' not found in guest. Creating and attaching disk to guest...
+==> k3s-worker-3: Running 'pre-boot' VM customizations...
+==> k3s-worker-3: Booting VM...
+==> k3s-worker-3: Waiting for machine to boot. This may take a few minutes...
+    k3s-worker-3: SSH address: 127.0.0.1:2203
+    k3s-worker-3: SSH username: vagrant
+    k3s-worker-3: SSH auth method: private key
+    k3s-worker-3: Warning: Connection reset. Retrying...
+    k3s-worker-3: Warning: Remote connection disconnect. Retrying...
+    k3s-worker-3:
+    k3s-worker-3: Vagrant insecure key detected. Vagrant will automatically replace
+    k3s-worker-3: this with a newly generated keypair for better security.
+    k3s-worker-3:
+    k3s-worker-3: Inserting generated public key within guest...
+    k3s-worker-3: Removing insecure key from the guest if it's present...
+    k3s-worker-3: Key inserted! Disconnecting and reconnecting using new SSH key...
+==> k3s-worker-3: Machine booted and ready!
+==> k3s-worker-3: Checking for guest additions in VM...
+    k3s-worker-3: The guest additions on this VM do not match the installed version of
+    k3s-worker-3: VirtualBox! In most cases this is fine, but in rare cases it can
+    k3s-worker-3: prevent things such as shared folders from working properly. If you see
+    k3s-worker-3: shared folder errors, please make sure the guest additions within the
+    k3s-worker-3: virtual machine match the version of VirtualBox you have installed on
+    k3s-worker-3: your host and reload your VM.
+    k3s-worker-3:
+    k3s-worker-3: Guest Additions Version: 6.0.0 r127566
+    k3s-worker-3: VirtualBox Version: 7.0
+==> k3s-worker-3: Setting hostname...
+==> k3s-worker-3: Configuring and enabling network interfaces...
+==> k3s-worker-3: Mounting shared folders...
+    k3s-worker-3: /data => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s/data
+    k3s-worker-3: /vagrant => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s
+==> k3s-worker-3: Detected mount owner ID within mount options. (uid: 1000 guestpath: /vagrant)
+==> k3s-worker-3: Detected mount group ID within mount options. (gid: 1000 guestpath: /vagrant)
+    k3s-worker-3: /opt/k3s => /Users/chan/Workspace/data-infra-on-k8s/cluster/k3s/patches
+==> k3s-worker-3: Detected mount owner ID within mount options. (uid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-3: Detected mount group ID within mount options. (gid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-3: Detected mount owner ID within mount options. (uid: 1000 guestpath: /vagrant)
+==> k3s-worker-3: Detected mount group ID within mount options. (gid: 1000 guestpath: /vagrant)
+==> k3s-worker-3: Detected mount owner ID within mount options. (uid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-3: Detected mount group ID within mount options. (gid: 1000 guestpath: /opt/k3s)
+==> k3s-worker-3: Running provisioner: configure_rootpass (shell)...
+    k3s-worker-3: Running: script: configure_rootpass
+==> k3s-worker-3: Running provisioner: install_k3s_manifest (shell)...
+    k3s-worker-3: Running: script: install_k3s_manifest
+    k3s-worker-3: '/opt/k3s/manifests/kube-admin.yaml' -> '/var/lib/rancher/k3s/server/manifests/kube-admin.yaml'
+    k3s-worker-3: '/opt/k3s/manifests/storage-class.yaml.skip' -> '/var/lib/rancher/k3s/server/manifests/storage-class.yaml.skip'
+    k3s-worker-3: '/opt/k3s/manifests/storage-provisioner.yaml.skip' -> '/var/lib/rancher/k3s/server/manifests/storage-provisioner.yaml.skip'
+==> k3s-worker-3: Running provisioner: hosts...
+==> k3s-worker-2: Updating hosts on: k3s-worker-2
+==> k3s-worker-1: Updating hosts on: k3s-worker-1
+==> k3s-master-1: Updating hosts on: k3s-master-1
+==> k3s-worker-3: Running provisioner: start_k3s_agent (shell)...
+    k3s-worker-3: Running: script: start_k3s_agent
+    k3s-worker-3: [INFO]  Skipping k3s download and verify
+    k3s-worker-3: [INFO]  Skipping installation of SELinux RPM
+    k3s-worker-3: [INFO]  Creating /usr/local/bin/kubectl symlink to k3s
+    k3s-worker-3: [INFO]  Creating /usr/local/bin/crictl symlink to k3s
+    k3s-worker-3: [INFO]  Creating /usr/local/bin/ctr symlink to k3s
+    k3s-worker-3: [INFO]  Creating killall script /usr/local/bin/k3s-killall.sh
+    k3s-worker-3: [INFO]  Creating uninstall script /usr/local/bin/k3s-agent-uninstall.sh
+    k3s-worker-3: [INFO]  env: Creating environment file /etc/systemd/system/k3s-agent.service.env
+    k3s-worker-3: [INFO]  systemd: Creating service file /etc/systemd/system/k3s-agent.service
+    k3s-worker-3: [INFO]  systemd: Enabling k3s-agent unit
+    k3s-worker-3: Created symlink /etc/systemd/system/multi-user.target.wants/k3s-agent.service → /etc/systemd/system/k3s-agent.service.
+    k3s-worker-3: [INFO]  systemd: Starting k3s-agent
