@@ -55,6 +55,10 @@ data:
     redirect_url = "https://kubeflow.geniouslab.io/oauth2/callback"
     relative_redirect_url = true
     # ---
+    #################################################
+    #          FOLLOWINGS ARE USER-DEFINED          #
+    #################################################
+    # ---
     # NOTE: overriden by environment variables
     # client_id = <string>
     # client_secret = <string>

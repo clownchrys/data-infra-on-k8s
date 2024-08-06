@@ -22,8 +22,8 @@ data:
         headersToDownstreamOnDeny:
         - content-type
         - set-cookie
-        # NOTE: to refresh oauth2-proxy cookie
         headersToDownstreamOnAllow:
+        # NOTE: to set cookie when refreshed in oauth2-proxy
         - set-cookie
         headersToUpstreamOnAllow:
         - authorization

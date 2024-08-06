@@ -6,5 +6,5 @@ metadata:
 data:
   ALLOW_SELF_SIGNED_ISSUER: "true"
   ENABLE_M2M_TOKENS: "false"
-  EXTRA_JWT_ISSUERS: https://kubernetes.default.svc.cluster.local=https://kubernetes.default.svc.cluster.local
+  EXTRA_JWT_ISSUERS: https://kubernetes.default.svc.cluster.local=https://kubernetes.default.svc.cluster.local  # if external issuer is used, in-cluster pod networking unavailable
   FORCE_HTTPS: "false"
