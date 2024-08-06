@@ -36,4 +36,4 @@ ${INGRESS_NGINX}-log:
 	kubectl logs -n ${NAMESPACE} deploy/ingress-nginx-controller -f
 
 ${INGRESS_NGINX}-connect:
-	sudo kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller 80:80 443:443
+	kubectl port-forward -n ingress-nginx svc/ingress-nginx-controller --address 0.0.0.0 80:80 443:443
