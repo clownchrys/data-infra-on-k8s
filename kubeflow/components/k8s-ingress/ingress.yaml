@@ -1,7 +1,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: kubeflow-central-dashboard
+  name: kubeflow
   namespace: istio-system
   annotations:
     nginx.ingress.kubernetes/rewrite-taget: /
