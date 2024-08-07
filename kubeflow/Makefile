@@ -39,14 +39,14 @@ ${KUBEFLOW_PREFIX}-up:
 	cd ${KUBEFLOW_MANIFEST_DIR} && git checkout tags/$$(basename ${KUSTOMIZATION})
 	kustomize build ${KUSTOMIZATION} >> /dev/null
 	while ! kustomize build ${KUSTOMIZATION} | kubectl apply ${OPT_KUBECTL_APPLY} -f -; do echo "Retrying to apply resources"; sleep 10; done	
-	$(MAKE) ${KUBEFLOW_PREFIX}-create-profile ACTION=apply PROFILE_NAME=kubeflow-admin-space RAW_OWNER_EMAIL=admin@clownchrys.link
+	# $(MAKE) ${KUBEFLOW_PREFIX}-create-profile ACTION=apply PROFILE_NAME=kubeflow-admin-space RAW_OWNER_EMAIL=admin@clownchrys.link
 	# $(MAKE) ${KUBEFLOW_PREFIX}-join-profile ACTION=apply PROFILE_NAME=kubeflow-admin-space RAW_USER_EMAIL=user@clownchrys.link SAFE_USER_EMAIL=user-clownchrys-link USER_ROLE=view
 	$(call print_url, https, kubeflow.geniouslab.io)
 
 ${KUBEFLOW_PREFIX}-down:
 	while ! kustomize build ${KUSTOMIZATION} | yq '[.]' | yq '. | reverse | .[] | split_doc | select(.kind == "CustomResourceDefinition")' | kubectl delete ${OPT_KUBECTL_DELETE} -f -; do echo "Retrying to delete resources"; sleep 10; done	
 	while ! kustomize build ${KUSTOMIZATION} | yq '[.]' | yq '. | reverse | .[] | split_doc | select(.kind != "CustomResourceDefinition")' | kubectl delete ${OPT_KUBECTL_DELETE} -f -; do echo "Retrying to delete resources"; sleep 10; done	
-	$(MAKE) ${KUBEFLOW_PREFIX}-create-profile ACTION=delete PROFILE_NAME=kubeflow-admin-space RAW_OWNER_EMAIL=admin@clownchrys.link
+	# $(MAKE) ${KUBEFLOW_PREFIX}-create-profile ACTION=delete PROFILE_NAME=kubeflow-admin-space RAW_OWNER_EMAIL=admin@clownchrys.link
 	# $(MAKE) ${KUBEFLOW_PREFIX}-join-profile ACTION=delete PROFILE_NAME=kubeflow-admin-space RAW_USER_EMAIL=user@clownchrys.link SAFE_USER_EMAIL=user-clownchrys-link USER_ROLE=view
 
 ${KUBEFLOW_PREFIX}-create-profile:

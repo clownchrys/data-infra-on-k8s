@@ -25,6 +25,8 @@ metadata:
 spec:
   predictor:
     model:
+      args:
+        - --enable_docs_url
       modelFormat:
         name: sklearn
       storageUri: "gs://kfserving-examples/models/sklearn/1.0/model"
