@@ -4,13 +4,13 @@ metadata:
   name: kubeflow
   namespace: istio-system
   annotations:
-    nginx.ingress.kubernetes/rewrite-taget: /
+    nginx.ingress.kubernetes/rewrite-taget: /$1
     # nginx.ingress.kubernetes/auth-snippet: |
     #   proxy_set_header Authorization $http_authorization;
     #   proxy_pass_header Authorization;
-    nginx.ingress.kubernetes/configuration-snippet: |
-      proxy_set_header Authorization $http_authorization;
-      proxy_pass_header Authorization;
+    # nginx.ingress.kubernetes/configuration-snippet: |
+    #   proxy_set_header Authorization $http_authorization;
+    #   proxy_pass_header Authorization;
 spec:
   ingressClassName: nginx
   rules:
@@ -18,7 +18,14 @@ spec:
     http:
       paths:
       - pathType: Prefix
-        path: "/"
+        path: /(.*)
+        backend:
+          service:
+            name: istio-ingressgateway
+            port: 
+              number: 80
+      - pathType: Prefix
+        path: /kserve-endpoints/(.*)
         backend:
           service:
             name: istio-ingressgateway

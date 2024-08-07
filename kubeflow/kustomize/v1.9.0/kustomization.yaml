@@ -109,6 +109,7 @@ components:
 # - ../../components/no-ssl
 - ../../components/keycloak-oauth2-proxy
 # - ../../components/keycloak-dex
+- ../../components/kserve-integration
 # - ../../components/mlflow-integration
 # - ../../components/model-registry
 # - ../../components/spark-operator

@@ -1,0 +1,13 @@
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-knative
+  namespace:
+spec:
+  rules:
+  - {}
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: <GATEWAY_NAME>
+    namespace: <SAME_NAMESPACE>

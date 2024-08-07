@@ -4,7 +4,7 @@ apiVersion: kubeflow.org/v1alpha1
 kind: PodDefault
 metadata:
   name: access-kfp
-  namespace: #kubeflow-user-example-com
+  namespace:
 spec:
   desc: Allow access to KFP
   selector:

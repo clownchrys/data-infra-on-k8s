@@ -1,0 +1,49 @@
+# https://kserve.github.io/website/latest/
+
+---
+# ref. https://kserve.github.io/website/latest/get_started/first_isvc/
+# ref. https://bongjasee.tistory.com/21
+# cat <<EOF > "./iris-input.json"
+# {
+#   "instances": [
+#     [6.8,  2.8,  4.8,  1.4],
+#     [6.0,  3.4,  4.5,  1.6]
+#   ]
+# }
+# EOF
+# export INGRESS_HOST=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+# export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].port}')
+# export SERVICE_HOSTNAME=$(kubectl get inferenceservice sklearn-iris -n kubeflow-admin-space -o jsonpath='{.status.url}' | cut -d "/" -f 3)
+# curl -v -H "Host: ${SERVICE_HOSTNAME}" -H "Content-Type: application/json" "http://${INGRESS_HOST}:${INGRESS_PORT}/v1/models/sklearn-iris:predict" -d @./iris-input.json
+# curl -v -H "Host: ${SERVICE_HOSTNAME}" -H "Content-Type: application/json" "http://kubeflow.geniouslab.io/v1/models/sklearn-iris:predict" -d @./iris-input.json
+# curl -v -H "Content-Type: application/json" http://sklearn-iris.kserve-test.kubeflow.geniouslab.io/v1/models/sklearn-iris:predict -d @./iris-input.json
+
+apiVersion: serving.kserve.io/v1beta1
+kind: InferenceService
+metadata:
+  name: sklearn-iris
+spec:
+  predictor:
+    model:
+      # usage: -m [--http_port HTTP_PORT]
+      #           [--grpc_port GRPC_PORT]
+      #           [--workers WORKERS]                                                                                                                                                                      
+      #           [--max_threads MAX_THREADS]                                                                                                                                                                                                              
+      #           [--max_asyncio_workers MAX_ASYNCIO_WORKERS]                                                                                                                                                                                              
+      #           [--enable_grpc ENABLE_GRPC]
+      #           [--enable_docs_url ENABLE_DOCS_URL]                                                                                                                                                                          
+      #           [--enable_latency_logging ENABLE_LATENCY_LOGGING]                                                                                                                                                                                        
+      #           [--configure_logging CONFIGURE_LOGGING]                                                                                                                                                                                                  
+      #           [--log_config_file LOG_CONFIG_FILE]                                                                                                                                                                                                      
+      #           [--access_log_format ACCESS_LOG_FORMAT]
+      #           [--model_name MODEL_NAME]                                                                                                                                                                        
+      #           [--predictor_host PREDICTOR_HOST]
+      #           [--protocol {v1,v2,grpc-v2}]                                                                                                                                                                           
+      #           [--predictor_protocol {v1,v2,grpc-v2}]                                                                                                                                                                                                   
+      #           [--predictor_use_ssl PREDICTOR_USE_SSL]                                                                                                                                                                                                  
+      #           [--predictor_request_timeout_seconds PREDICTOR_REQUEST_TIMEOUT_SECONDS]
+      args:
+        - --enable_docs_url=True  # Swagger
+      modelFormat:
+        name: sklearn
+      storageUri: gs://kfserving-examples/models/sklearn/1.0/model

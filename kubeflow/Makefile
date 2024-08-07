@@ -16,8 +16,8 @@ ${KUBEFLOW_PREFIX}-%: KUBEFLOW_MANIFEST_DIR := ${KUBEFLOW_HOME}/manifests
 ${KUBEFLOW_PREFIX}-%: KUSTOMIZATION := ${KUBEFLOW_HOME}/kustomize/v1.9.0
 # ${KUBEFLOW_PREFIX}-%: KUSTOMIZATION := ${KUBEFLOW_HOME}/test/example
 
-${KUBEFLOW_PREFIX}-%: TEMPLATE_CREATE_PROFILE := ${KUBEFLOW_HOME}/templates/create_profile.yaml
-${KUBEFLOW_PREFIX}-%: TEMPLATE_JOIN_PROFILE := ${KUBEFLOW_HOME}/templates/join_profile.yaml
+${KUBEFLOW_PREFIX}-%: TEMPLATE_CREATE_PROFILE := ${KUBEFLOW_HOME}/templates/profile.create.yaml
+${KUBEFLOW_PREFIX}-%: TEMPLATE_JOIN_PROFILE := ${KUBEFLOW_HOME}/templates/profile.join.yaml
 
 ${KUBEFLOW_PREFIX}-init:
 	git submodule update --init --recursive ${KUBEFLOW_MANIFEST_DIR}
