@@ -1,11 +1,11 @@
 apiVersion: security.istio.io/v1beta1
 kind: AuthorizationPolicy
 metadata:
-  name: allow-isvc
+  name: allow-selector
   namespace:
 spec:
   rules:
   - {}
   selector:
     matchLabels:
-      serving.kserve.io/inferenceservice:
+      component: predictor

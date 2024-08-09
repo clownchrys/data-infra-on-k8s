@@ -4,35 +4,41 @@ metadata:
   name: kubeflow
   namespace: istio-system
   annotations:
+    # kubernetes.io/ingress.allow-http: "false"
+    # LEGACY
+    # nginx.ingress.kubernetes.io/secure-backends: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"  # http -> 308 -> https 로 리디렉션
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"  # 백엔드 서비스로 전달할때 사용할 프로토콜 지정 (이전 버전의 secure-backends 대체)
+    nginx.ingress.kubernetes.io/enable-rewrite-log: "true"
     nginx.ingress.kubernetes/rewrite-taget: /$1
-    # nginx.ingress.kubernetes/auth-snippet: |
-    #   proxy_set_header Authorization $http_authorization;
-    #   proxy_pass_header Authorization;
     # nginx.ingress.kubernetes/configuration-snippet: |
     #   proxy_set_header Authorization $http_authorization;
     #   proxy_pass_header Authorization;
+    cert-manager.io/cluster-issuer: kubeflow-self-signing-issuer
+    # acme.cert-manager.io/http01-edit-in-place: "true"
+    # kubernetes.io/tls-acme: "true"
 spec:
+  tls:
+  - hosts:
+    - kubeflow.geniouslab.io
+    secretName: kubeflow.geniouslab.io-tls
   ingressClassName: nginx
   rules:
   - host: kubeflow.geniouslab.io
     http:
       paths:
-      - pathType: Prefix
+      - pathType: ImplementationSpecific
         path: /(.*)
         backend:
           service:
             name: istio-ingressgateway
             port: 
               number: 80
-      - pathType: Prefix
+      - pathType: ImplementationSpecific
         path: /kserve-endpoints/(.*)
         backend:
           service:
             name: istio-ingressgateway
             port: 
               number: 80
-  # tls:
-  # - hosts:
-  #   - kubeflow.geniouslab.io
-  #   # secretName: istio-ingressgateway-certs
-  #   secretName: routing-serving-certs

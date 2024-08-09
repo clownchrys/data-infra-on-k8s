@@ -9,5 +9,5 @@ spec:
   targetRef:
     group: 
     kind: Service
-    name: <SERVICE_NAME>
-    namespace: <SAME_NAMESPACE>
+    name: sklearn-iris
+    namespace: kubeflow-admin-space

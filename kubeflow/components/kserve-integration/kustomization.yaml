@@ -7,5 +7,5 @@ kind: Component
 # External Access to Endpoint
 #
 
-resources:
-- configmap.config-domain.yaml
+patches:
+- path: configmap.config-domain.yaml

@@ -1,0 +1,68 @@
+# For what a Kiali CR spec can look like, see:
+# https://github.com/kiali/kiali-operator/blob/master/deploy/kiali/kiali_cr.yaml
+
+# cat /kiali-configuration/config.yaml # on kiali pod
+
+cr:
+  create: true
+  name: kiali
+  # If you elect to create a Kiali CR (--set cr.create=true)
+  # and the operator is watching all namespaces (--set watchNamespace="")
+  # then this is the namespace where the CR will be created (the default will be the operator namespace).
+  namespace: istio-system
+
+  # Annotations to place in the Kiali CR metadata.
+  annotations: {}
+
+  spec:
+    deployment:
+      accessible_namespaces:
+      - '**'
+
+      ingress:
+        enabled: true
+        # class_name: nginx
+        override_yaml:
+          metadata:
+            annotations:
+              nginx.ingress.kubernetes.io/use-regex: "true"
+              nginx.ingress.kubernetes.io/ssl-redirect: "true"  # http -> 308 -> https 로 리디렉션
+              nginx.ingress.kubernetes.io/backend-protocol: "HTTP"  # 백엔드 서비스로 전달할때 사용할 프로토콜 지정 (이전 버전의 secure-backends 대체)
+              nginx.ingress.kubernetes.io/enable-rewrite-log: "true"
+              nginx.ingress.kubernetes/rewrite-taget: /$1
+              cert-manager.io/cluster-issuer: kubeflow-self-signing-issuer
+              # acme.cert-manager.io/http01-edit-in-place: "true"
+              # kubernetes.io/tls-acme: "true"
+          spec:
+            tls:
+            - hosts:
+              - kiali.geniouslab.io
+              secretName: kiali.geniouslab.io-tls
+            ingressClassName: nginx
+            rules:
+            - host: kiali.geniouslab.io
+              http:
+                paths:
+                - pathType: ImplementationSpecific
+                  path: /(.*)
+                  backend:
+                    service:
+                      name: kiali
+                      port: 
+                        number: 20001
+
+    auth:
+      strategy: anonymous
+
+  # https://github.com/kiali/kiali-operator/blob/master/crd-docs/cr/kiali.io_v1alpha1_kiali.yaml
+  # https://kiali.io/docs/configuration/kialis.kiali.io/
+
+  # external_services:
+  #   custom_dashboards:
+  #   prometheus:
+  #     url: http://prometheus.istio-system:9090
+  #   grafana:
+  #     in_cluster_url: http://grafana.istio-system:3000
+  #     url: 
+  #   tracing:
+  #   istio:

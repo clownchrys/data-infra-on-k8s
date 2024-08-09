@@ -158,6 +158,7 @@ include metrics-server/Makefile
 include rook-ceph/Makefile
 include rancher/Makefile
 include mlrun/Makefile
+include kiali/Makefile
 
 #############################
 #          ALIASES          #

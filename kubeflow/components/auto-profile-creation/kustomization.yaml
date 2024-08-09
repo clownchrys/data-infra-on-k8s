@@ -9,4 +9,4 @@ patches:
   patch: |
     - op: replace
       path: /data/CD_REGISTRATION_FLOW
-      value: "true"
+      value: "false"
