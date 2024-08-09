@@ -1,0 +1,66 @@
+# https://istio.io/v1.22/docs/reference/config/
+# https://istio.io/v1.22/docs/reference/config/istio.operator.v1alpha1/#IstioOperatorSpec
+# https://istio.io/v1.22/docs/reference/config/istio.mesh.v1alpha1/#MeshConfig
+
+apiVersion: install.istio.io/v1alpha1
+kind: IstioOperator
+
+# this will be applied `configmap/istio`
+spec:
+  # profile: default
+  # hub: gcr.io/istio-testing
+  # tag: latest
+  # revision: istio
+
+  # https://istio.io/latest/docs/reference/config/istio.mesh.v1alpha1/#MeshConfig
+  meshConfig:
+    defaultConfig:
+      # discoveryAddress: istiod.istio-system.svc:15012
+      proxyMetadata: {}
+      tracing: {}
+
+    tcpKeepalive:
+      interval: 5s
+      probes: 3
+      time: 10s
+
+    enablePrometheusMerge: true
+    enableTracing: true
+    accessLogFile: /dev/stdout
+    rootNamespace: istio-system
+    trustDomain: cluster.local
+
+    extensionProviders:
+    - name: oauth2-proxy
+      envoyExtAuthzHttp:
+        headersToDownstreamOnDeny:
+        - content-type
+        - set-cookie
+        headersToDownstreamOnAllow:
+        # NOTE: to set cookie when refreshed in oauth2-proxy
+        - set-cookie
+        headersToUpstreamOnAllow:
+        - authorization
+        - path
+        - x-auth-request-email
+        - x-auth-request-groups
+        - x-auth-request-user
+        includeRequestHeadersInCheck:
+        - authorization
+        - cookie
+        service: oauth2-proxy.oauth2-proxy.svc.cluster.local
+        port: 80
+
+  # https://istio.io/latest/docs/reference/config/istio.operator.v1alpha1/#IstioComponentSetSpec
+  # components:
+    # base: 
+    # pilot: 
+    # cni:
+    # ztunnel:
+    # istiodRemote:
+    # ingressGateways:
+    # egressGateways:
+    # - name: istio-egressgateway
+    #   enabled: true
+
+  # addonComponents:  # deprecated

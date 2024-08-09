@@ -1,0 +1,31 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana
+  namespace: istio-system
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"  # http -> 308 -> https 로 리디렉션
+    nginx.ingress.kubernetes.io/backend-protocol: "HTTP"  # 백엔드 서비스로 전달할때 사용할 프로토콜 지정 (이전 버전의 secure-backends 대체)
+    nginx.ingress.kubernetes.io/enable-rewrite-log: "true"
+    nginx.ingress.kubernetes/rewrite-taget: /$1
+    cert-manager.io/cluster-issuer: kubeflow-self-signing-issuer
+    # acme.cert-manager.io/http01-edit-in-place: "true"
+    # kubernetes.io/tls-acme: "true"
+spec:
+  tls:
+  - hosts:
+    - grafana.geniouslab.io
+    secretName: grafana.geniouslab.io-tls
+  ingressClassName: nginx
+  rules:
+  - host: grafana.geniouslab.io
+    http:
+      paths:
+      - pathType: ImplementationSpecific
+        path: /(.*)
+        backend:
+          service:
+            name: grafana
+            port: 
+              number: 20001
