@@ -105,13 +105,17 @@ ns-resources:
 	kubectl api-resources --verbs=list --namespaced -o name \
 	| xargs -n 1 kubectl get -o name --show-kind --ignore-not-found -n ${namespace}
 
-rancher-registry:
-	$(eval _CURRENT_COTEXT := $(shell kubectx --current))
-	kubectx rancher
-	kubectl get cluster.management.cattle.io -o yaml | yq '.items[] | select(.spec.displayName == "${name}") | .metadata.name' | \
-	xargs -I% kubectl get clusterregistrationtoken.management.cattle.io -n % -o yaml | \
-	yq '.items[] | [{"name": .metadata.name, "command": .status.command}]' | yq '{"candidates": .}'; \
-	kubectx ${_CURRENT_COTEXT}
+example:
+	@echo https://k8s.io/examples/application/deployment.yaml
+
+rancher-register: RANCHER_SERVER_CTX := rancher
+rancher-register: CURRENT_CTX := $(shell kubectx --current)
+rancher-register:
+	$(call check_defined, name)
+	@kubectx ${RANCHER_SERVER_CTX}
+	@kubectl get cluster.management.cattle.io -o yaml | yq '.items[] | select(.spec.displayName == "${name}") | .metadata.name' | \
+	xargs -I% kubectl get clusterregistrationtoken.management.cattle.io -n % -o yaml -o custom-columns=NAME:.metadata.name,COMMAND:.status.command;
+	@kubectx ${CURRENT_CTX}
 
 %-restart: %-down %-up
 	@#line must be required on target-dependency working (make $*-restart)
@@ -241,6 +245,3 @@ application-up: \
 list-port-forward:
 	@echo "PID\tPORT\tSERVICE"
 	ps -ef | grep 'kubectl' | grep 'port-forward' | awk '{split($$13,ports,":"); print $$2 "\t" ports[1] "\t" $$12 " " $$9 " " $$10}' | grep svc
-
-example:
-	@echo https://k8s.io/examples/application/deployment.yaml

@@ -63,6 +63,8 @@ spec:
         env:
         - name: PILOT_JWT_PUB_KEY_REFRESH_INTERVAL
           value: "1m"
+        - name: PILOT_ENABLE_ANALYSIS
+          value: "true"
         # - name: ENABLE_DEBUG_ON_HTTP
         #   value: "false"
         # - name: REVISION
@@ -110,6 +112,8 @@ spec:
     # istiodRemote:
     #   enabled: false
     # ingressGateways:
+    # - name: istio-ingressgateway
+    #   enabled: true
     # egressGateways:
     # - name: istio-egressgateway
     #   enabled: true
