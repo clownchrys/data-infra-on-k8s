@@ -1,5 +1,5 @@
 SHELL := /bin/zsh
-ROOT_DIR := /Users/chan/Workspace/data-infra-on-k8s
+# K8S_PROJECT_DIR := /Users/chan/Workspace/data-infra-on-k8s
 
 ############################
 #          COMMON          #
@@ -105,6 +105,14 @@ ns-resources:
 	kubectl api-resources --verbs=list --namespaced -o name \
 	| xargs -n 1 kubectl get -o name --show-kind --ignore-not-found -n ${namespace}
 
+rancher-registry:
+	$(eval _CURRENT_COTEXT := $(shell kubectx --current))
+	kubectx rancher
+	kubectl get cluster.management.cattle.io -o yaml | yq '.items[] | select(.spec.displayName == "${name}") | .metadata.name' | \
+	xargs -I% kubectl get clusterregistrationtoken.management.cattle.io -n % -o yaml | \
+	yq '.items[] | [{"name": .metadata.name, "command": .status.command}]' | yq '{"candidates": .}'; \
+	kubectx ${_CURRENT_COTEXT}
+
 %-restart: %-down %-up
 	@#line must be required on target-dependency working (make $*-restart)
 
@@ -158,7 +166,6 @@ include metrics-server/Makefile
 include rook-ceph/Makefile
 include rancher/Makefile
 include mlrun/Makefile
-include kiali/Makefile
 
 #############################
 #          ALIASES          #

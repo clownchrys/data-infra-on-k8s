@@ -52,12 +52,63 @@ spec:
         port: 80
 
   # https://istio.io/latest/docs/reference/config/istio.operator.v1alpha1/#IstioComponentSetSpec
-  # components:
+  components:
     # base: 
-    # pilot: 
+    #   enabled: true
+    #   k8s:
+    #     overlays:
+    pilot: 
+      enabled: true
+      k8s:
+        env:
+        - name: PILOT_JWT_PUB_KEY_REFRESH_INTERVAL
+          value: "1m"
+        # - name: ENABLE_DEBUG_ON_HTTP
+        #   value: "false"
+        # - name: REVISION
+        #   value: default
+        # - name: PILOT_CERT_PROVIDER
+        #   value: istiod
+        # - name: POD_NAME
+        #   valueFrom:
+        #     fieldRef:
+        #       apiVersion: v1
+        #       fieldPath: metadata.name
+        # - name: POD_NAMESPACE
+        #   valueFrom:
+        #     fieldRef:
+        #       apiVersion: v1
+        #       fieldPath: metadata.namespace
+        # - name: SERVICE_ACCOUNT
+        #   valueFrom:
+        #     fieldRef:
+        #       apiVersion: v1
+        #       fieldPath: spec.serviceAccountName
+        # - name: KUBECONFIG
+        #   value: /var/run/secrets/remote/config
+        # - name: PILOT_TRACE_SAMPLING
+        #   value: "1"
+        # - name: PILOT_ENABLE_ANALYSIS
+        #   value: "false"
+        # - name: CLUSTER_ID
+        #   value: Kubernetes
+        # - name: GOMEMLIMIT
+        #   valueFrom:
+        #     resourceFieldRef:
+        #       resource: limits.memory
+        # - name: GOMAXPROCS
+        #   valueFrom:
+        #     resourceFieldRef:
+        #       resource: limits.cpu
+        # - name: PLATFORM
+        #   value: ""
+      # spec:
     # cni:
+    #   enabled: false
     # ztunnel:
+    #   enabled: false
     # istiodRemote:
+    #   enabled: false
     # ingressGateways:
     # egressGateways:
     # - name: istio-egressgateway

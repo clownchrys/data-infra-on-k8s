@@ -67,6 +67,8 @@ data:
     # extra_jwt_issuers = <string>
     # skip_jwt_bearer_tokens = <boolean>
     # ---
+    cookie_domains = ["*"]
+    whitelist_domains = ["*"]
     profile_url = "https://keycloak.clownchrys.link/realms/default/protocol/openid-connect/userinfo"
     validate_url = "https://keycloak.clownchrys.link/realms/default/protocol/openid-connect/userinfo"
     backend_logout_url = "https://keycloak.clownchrys.link/realms/default/protocol/openid-connect/logout?id_token_hint={id_token}" # &post_logout_redirect_uri=http://cyberchef.pippo.it
@@ -80,8 +82,7 @@ data:
     auth_logging = true
     standard_logging = true
     silence_ping_logging = true
-    cookie_domains = ["*"]
-    whitelist_domains = ["*"]
-
+    cookie_csrf_per_request = true
+    cookie_csrf_expire = "24h"
 
 binaryData: {}

@@ -4,8 +4,8 @@
 
 BUILDER_ROOT := builder
 
-ifneq (${ROOT_DIR}, $(abspath .))
-$(error Location Error: Please Execute on Top-Level Directory (Current: $(shell pwd)))
+ifneq ($(abspath ${K8S_PROJECT_DIR}), $(abspath .))
+$(error Location Error: Please Execute on `K8S_PROJECT_DIR` (Current: $(shell pwd), K8S_PROJECT_DIR: ${K8S_PROJECT_DIR}))
 endif
 
 BUILDER_IMAGE := clownchrys/published:builder

@@ -17,8 +17,8 @@ K3S_HOME := cluster/k3s
 K3S_VERSION := v1.28.10
 K3S_VAGRANT := cd ${K3S_HOME} && vagrant
 
-ifneq (${ROOT_DIR}, $(abspath .))
-$(error Location Error: Please Execute on Top-Level Directory (Current: $(shell pwd)))
+ifneq ($(abspath ${K8S_PROJECT_DIR}), $(abspath .))
+$(error Location Error: Please Execute on `K8S_PROJECT_DIR` (Current: $(shell pwd), K8S_PROJECT_DIR: ${K8S_PROJECT_DIR}))
 endif
 
 ${K3S}-%: K3S_VAGRANT := cd ${K3S_HOME} && vagrant
