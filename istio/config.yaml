@@ -118,4 +118,16 @@ spec:
     - name: istio-egressgateway
       enabled: true
 
-  # addonComponents:  # deprecated
+  # DEPRECATED
+  # addonComponents:
+
+  # Most default values come from the helm chart's values.yaml
+  # Below are the things that differ
+  values:
+    defaultRevision: ""
+    global:
+      istioNamespace: istio-system
+      configValidation: true
+    gateways:
+      istio-ingressgateway: {}
+      istio-egressgateway: {}
