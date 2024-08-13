@@ -111,11 +111,11 @@ spec:
     #   enabled: false
     # istiodRemote:
     #   enabled: false
-    # ingressGateways:
-    # - name: istio-ingressgateway
-    #   enabled: true
-    # egressGateways:
-    # - name: istio-egressgateway
-    #   enabled: true
+    ingressGateways:
+    - name: istio-ingressgateway
+      enabled: true
+    egressGateways:
+    - name: istio-egressgateway
+      enabled: true
 
   # addonComponents:  # deprecated
