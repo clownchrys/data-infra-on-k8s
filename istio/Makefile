@@ -25,7 +25,8 @@ ${ISTIO_PREFIX}-init:
 	cd $$(dirname ${ISTIO_DOWNLOAD_DIR}) && curl -L https://istio.io/downloadIstio | ISTIO_VERSION=${ISTIO_VERSION} TARGET_ARCH=${ISTIO_TARGET_ARCH} sh -
 	ln -sfnv ${ISTIO_DOWNLOAD_DIR} ${ISTIO_CURRENT_DIR}
 	@echo "\nSet Environment Variable PATH:"
-	@echo "\texport PATH=${ISTIO_CURRENT_DIR}/bin:\$$PATH\n"
+	@echo "\texport ISTIO_HOME=${ISTIO_CURRENT_DIR}"
+	@echo "\texport PATH=\$$ISTIO_HOME/bin:\$$PATH\n"
 	which istioctl
 	istioctl version --remote=false
 

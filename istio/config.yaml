@@ -5,10 +5,13 @@
 apiVersion: install.istio.io/v1alpha1
 kind: IstioOperator
 
-# this will be applied `configmap/istio`
+# This will be applied to the resource: `configmap/istio`
 spec:
+  # https://istio.io/latest/docs/setup/additional-setup/config-profiles/
+  # ls $ISTIO_HOME/manifests/profiles/
+
   # profile: default
-  # hub: gcr.io/istio-testing
+  # hub: docker.io/istio
   # tag: latest
   # revision: istio
 
