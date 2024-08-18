@@ -93,19 +93,24 @@ debug-shell:
 	$(call check_defined, ns pod image)
 	kubectl debug -n ${ns} -it ${pod} --image=${image} --share-processes -- /bin/sh
 
-# WARNING: NOT RECOMMENDED!!
+# WARNING: NOT RECOMMENDED, DUE TO DIRECT REQUEST TO API SERVER!!
 # kubectl get ns ${namespace} -o json \
 # | tr -d "\n" | sed "s/\"finalizers\": \[[^]]\+\]/\"finalizers\": []/"
 kill-hang-force:
+	$(call check_defined, namespace)
 	kubectl get ns ${namespace} -o json | jq '.spec.finalizers=[]' \
 	| kubectl replace --raw /api/v1/namespaces/${namespace}/finalize -f -
 
-# NOTE: BETTER WORKS :)
 ns-resources:
+	$(call check_defined, namespace)
 	kubectl api-resources --verbs=list --namespaced -o name \
 	| xargs -n 1 kubectl get -o name --show-kind --ignore-not-found -n ${namespace}
 
+# https://github.com/<USERNAME>/<REPOSITORY>/tree/<BRANCH>/<PATHS>
+# https://raw.githubusercontent.com/<USERNAME>/<REPOSITORY>/<BRANCH>/<PATHS>
 example:
+	@echo https://github.com/kubernetes/website/tree/main/content/en/examples/application/deployment.yaml
+	@echo https://raw.githubusercontent.com/kubernetes/website/main/content/en/examples/application/deployment.yaml
 	@echo https://k8s.io/examples/application/deployment.yaml
 
 rancher-register: RANCHER_SERVER_CTX := rancher
@@ -128,7 +133,7 @@ include cluster/kind/Makefile
 include cluster/minikube/Makefile
 include cluster/k3s/Makefile
 
-CLUSTER_PROVIDER := k3s
+CLUSTER_PROVIDER := k3s  # Default Provider
 
 cluster-info:
 	@echo Current: ${CLUSTER_PROVIDER}

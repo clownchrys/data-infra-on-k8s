@@ -10,8 +10,8 @@ ISTIO_PREFIX := istio
 ISTIO_VERSION := 1.22.3
 ISTIO_TARGET_ARCH := x86_64
 
-ISTIO_DOWNLOAD_DIR := ${HOME}/istio/versions/istio-${ISTIO_VERSION}
-ISTIO_CURRENT_DIR := ${HOME}/istio/current
+ISTIO_DOWNLOAD_DIR := $$HOME/istio/versions/istio-${ISTIO_VERSION}
+ISTIO_CURRENT_DIR := $$HOME/istio/current
 
 ifneq ($(abspath ${K8S_PROJECT_DIR}), $(abspath .))
 $(error Location Error: Please Execute on `K8S_PROJECT_DIR` (Current: $(shell pwd), K8S_PROJECT_DIR: ${K8S_PROJECT_DIR}))
@@ -25,7 +25,7 @@ ${ISTIO_PREFIX}-init:
 	cd $$(dirname ${ISTIO_DOWNLOAD_DIR}) && curl -L https://istio.io/downloadIstio | ISTIO_VERSION=${ISTIO_VERSION} TARGET_ARCH=${ISTIO_TARGET_ARCH} sh -
 	ln -sfnv ${ISTIO_DOWNLOAD_DIR} ${ISTIO_CURRENT_DIR}
 	@echo "\nSet Environment Variable PATH:"
-	@echo "\texport ISTIO_HOME=${ISTIO_CURRENT_DIR}"
+	@echo "\texport ISTIO_HOME=\${ISTIO_CURRENT_DIR}"
 	@echo "\texport PATH=\$$ISTIO_HOME/bin:\$$PATH\n"
 	which istioctl
 	istioctl version --remote=false
@@ -37,9 +37,9 @@ ${ISTIO_PREFIX}-down:
 	istioctl uninstall --skip-confirmation --purge
 
 # https://istio.io/latest/docs/ops/integrations/prometheus/
-${ISTIO_PREFIX}/prom-up:
+${ISTIO_PREFIX}/prometheus-up:
 	kubectl apply -f ${ISTIO_CURRENT_DIR}/samples/addons/prometheus.yaml ${OPT_KUBECTL_APPLY}
-${ISTIO_PREFIX}/prom-down:
+${ISTIO_PREFIX}/prometheus-down:
 	kubectl delete -f ${ISTIO_CURRENT_DIR}/samples/addons/prometheus.yaml ${OPT_KUBECTL_DELETE}
 
 # https://istio.io/latest/docs/ops/integrations/grafana/
